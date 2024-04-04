@@ -11,6 +11,7 @@ import com.hrznstudio.titanium.Titanium;
 import com.hrznstudio.titanium.network.CompoundSerializableDataHandler;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -18,7 +19,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Field;
 import java.util.function.Supplier;
 
-public class GenericSerializer<T extends SerializableRecipe> implements RecipeSerializer<T> {
+public class GenericSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
     private final Class<T> recipeClass;
     private final Supplier<RecipeType<?>> recipeTypeSupplier;
     private final Codec<T> codec;
@@ -60,15 +61,6 @@ public class GenericSerializer<T extends SerializableRecipe> implements RecipeSe
         } catch (Exception e) {
             Titanium.LOGGER.catching(e);
         }
-    }
-
-    private boolean fieldExists(String field) {
-        for (Field recipeClassField : recipeClass.getFields()) {
-            if (recipeClassField.getName().equalsIgnoreCase(field)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

@@ -40,13 +40,11 @@ public class DeferredRegistryHelper {
 
     private final String modId;
     private final HashMap<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> registries;
-    private final CreativeTabHelper creativeTabHelper;
     private final IEventBus bus;
 
     public DeferredRegistryHelper(String modId) {
         this.modId = modId;
         this.registries = new HashMap<>();
-        this.creativeTabHelper = new CreativeTabHelper();
         bus = ModList.get().getModContainerById(modId).orElseThrow().getEventBus();
     }
 

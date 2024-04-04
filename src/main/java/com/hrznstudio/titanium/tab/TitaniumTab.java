@@ -15,8 +15,8 @@ import java.util.List;
 
 public class TitaniumTab {
 
-    private List<Item> tabList;
-    private ResourceLocation resourceLocation;
+    private final List<Item> tabList;
+    private final ResourceLocation resourceLocation;
 
     public TitaniumTab(ResourceLocation resourceLocation) {
         this.resourceLocation = resourceLocation;

@@ -104,11 +104,6 @@ public class Titanium extends ModuleController {
     }
 
     @Override
-    public void onPostInit() {
-        super.onPostInit();
-    }
-
-    @Override
     public void addDataProvider(GatherDataEvent event) {
     }
 

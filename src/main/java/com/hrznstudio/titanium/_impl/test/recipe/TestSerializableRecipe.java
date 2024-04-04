@@ -7,8 +7,6 @@
 
 package com.hrznstudio.titanium._impl.test.recipe;
 
-import com.hrznstudio.titanium.recipe.serializer.GenericSerializer;
-import com.hrznstudio.titanium.recipe.serializer.SerializableRecipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
@@ -18,6 +16,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -27,7 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSerializableRecipe extends SerializableRecipe {
+public class TestSerializableRecipe implements Recipe<Container> {
 
     public static Holder<RecipeSerializer<?>> SERIALIZER;
     public static Holder<RecipeType<?>> RECIPE_TYPE;
@@ -87,8 +86,8 @@ public class TestSerializableRecipe extends SerializableRecipe {
     }
 
     @Override
-    public GenericSerializer<? extends SerializableRecipe> getSerializer() {
-        return (GenericSerializer<? extends SerializableRecipe>) SERIALIZER.value();
+    public RecipeSerializer<?> getSerializer() {
+        return SERIALIZER.value();
     }
 
     @Override

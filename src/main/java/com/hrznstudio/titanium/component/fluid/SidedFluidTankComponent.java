@@ -98,37 +98,25 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
     }
 
 
-    @Override
-    public boolean work(Level world, BlockPos pos, Direction blockFacing, int workAmount) {
+    private boolean workSides(Level level, BlockPos pos, Direction blockFacing, int workAmount, FaceMode mode) {
         for (FacingUtil.Sideness sideness : facingModes.keySet()) {
-            if (facingModes.get(sideness).equals(FaceMode.PUSH)) {
+            if (facingModes.get(sideness) == mode) {
                 Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
-                BlockEntity entity = world.getBlockEntity(pos.relative(real));
-                if (entity != null) {
-                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.FluidHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
-                        .map(iFluidHandler -> transfer(this, iFluidHandler, workAmount))
-                        .orElse(false);
-                    if (hasWorked) {
-                        return true;
-                    }
-                }
-            }
-        }
-        for (FacingUtil.Sideness sideness : facingModes.keySet()) {
-            if (facingModes.get(sideness).equals(FaceMode.PULL)) {
-                Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
-                BlockEntity entity = world.getBlockEntity(pos.relative(real));
-                if (entity != null) {
-                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.FluidHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
-                        .map(iFluidHandler -> transfer(iFluidHandler, this, workAmount))
-                        .orElse(false);
-                    if (hasWorked) {
+                var cap = level.getCapability(Capabilities.FluidHandler.BLOCK, pos.relative(real), real.getOpposite());
+                if (cap != null) {
+                    if (transfer(mode == FaceMode.PUSH ? this : cap, mode == FaceMode.PUSH ? cap : this, workAmount)) {
                         return true;
                     }
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean work(Level world, BlockPos pos, Direction blockFacing, int workAmount) {
+        if (workSides(world, pos, blockFacing, workAmount, FaceMode.PUSH)) return true;
+        return workSides(world, pos, blockFacing, workAmount, FaceMode.PULL);
     }
 
     @Override

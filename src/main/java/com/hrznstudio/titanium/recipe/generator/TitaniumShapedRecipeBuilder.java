@@ -29,13 +29,11 @@ public class TitaniumShapedRecipeBuilder extends ShapedRecipeBuilder {
 
     private ResourceLocation resourceLocation;
     private final List<ICondition> conditions;
-    private boolean build;
     private boolean criterion;
 
     public TitaniumShapedRecipeBuilder(RecipeCategory recipeCategory, ItemLike resultIn, int countIn) {
         super(recipeCategory, resultIn, countIn);
         this.resourceLocation = BuiltInRegistries.ITEM.getKey(resultIn.asItem());
-        this.build = false;
         this.conditions = new ArrayList<>();
         condition(new ItemExistsCondition(resourceLocation));
     }

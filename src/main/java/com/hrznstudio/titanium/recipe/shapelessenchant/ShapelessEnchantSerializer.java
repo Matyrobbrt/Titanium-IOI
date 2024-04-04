@@ -12,6 +12,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,6 +32,22 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class ShapelessEnchantSerializer extends ShapelessRecipe.Serializer {
+    private final Codec<ShapelessRecipe> codec = Codec.PASSTHROUGH.flatXmap(
+        dynamic -> {
+            try {
+                return DataResult.success(fromJson(dynamic.cast(JsonOps.INSTANCE).getAsJsonObject()));
+            } catch (Exception exception) {
+                return DataResult.error(exception::getMessage);
+            }
+        },
+        shapelessRecipe -> DataResult.error(() -> "Cannot encode")
+    );
+
+    @Override
+    public Codec<ShapelessRecipe> codec() {
+        return codec;
+    }
+
     @Nonnull
     public ShapelessRecipe fromJson(JsonObject json) {
         String s = GsonHelper.getAsString(json, "group", "");
