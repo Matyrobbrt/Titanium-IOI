@@ -18,10 +18,10 @@ import com.hrznstudio.titanium.container.addon.IContainerAddonProvider;
 import com.hrznstudio.titanium.container.addon.SlotContainerAddon;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;

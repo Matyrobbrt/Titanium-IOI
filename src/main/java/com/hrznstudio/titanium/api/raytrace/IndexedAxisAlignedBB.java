@@ -23,10 +23,6 @@ public class IndexedAxisAlignedBB extends AABB {
         super(pos);
     }
 
-    public IndexedAxisAlignedBB(BlockPos pos1, BlockPos pos2) {
-        super(pos1, pos2);
-    }
-
     public IndexedAxisAlignedBB(Vec3 min, Vec3 max) {
         super(min, max);
     }

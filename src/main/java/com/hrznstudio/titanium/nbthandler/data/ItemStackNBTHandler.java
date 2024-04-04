@@ -22,7 +22,7 @@ public class ItemStackNBTHandler implements INBTHandler<ItemStack> {
 
     @Override
     public boolean storeToNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nonnull ItemStack object) {
-        compound.put(name, object.serializeNBT());
+        compound.put(name, object.save(new CompoundTag()));
         return true;
     }
 

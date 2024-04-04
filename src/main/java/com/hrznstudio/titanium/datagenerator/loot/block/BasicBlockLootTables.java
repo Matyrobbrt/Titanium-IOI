@@ -19,8 +19,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.common.util.NonNullLazy;
-
+import net.neoforged.neoforge.common.util.NonNullLazy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;

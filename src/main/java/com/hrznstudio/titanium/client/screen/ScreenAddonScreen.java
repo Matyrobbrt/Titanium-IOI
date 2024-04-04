@@ -66,7 +66,7 @@ public abstract class ScreenAddonScreen extends Screen implements IScreenAddonCo
         this.checkForMouseDrag(mouseX, mouseY);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         if (drawBackground) {
-            this.renderBackground(guiGraphics);//draw tinted background
+            super.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);//draw tinted background
             AssetUtil.drawAsset(guiGraphics, this, assetProvider.getAsset(AssetTypes.BACKGROUND), x, y);
         }
         addonList.forEach(iGuiAddon -> iGuiAddon.drawBackgroundLayer(guiGraphics, this, assetProvider, x, y, mouseX, mouseY, partialTicks));

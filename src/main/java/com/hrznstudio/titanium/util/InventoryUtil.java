@@ -9,23 +9,12 @@ package com.hrznstudio.titanium.util;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-
+import net.neoforged.neoforge.items.IItemHandler;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
 public class InventoryUtil {
-    public static List<ItemStack> getStacks(ICapabilityProvider provider) {
-        LazyOptional<IItemHandler> inv = provider.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-        if (!inv.isPresent())
-            return Collections.emptyList();
-        return getStacks(inv.orElseThrow(NullPointerException::new));
-    }
-
     public static List<ItemStack> getStacks(@Nullable IItemHandler handler) {
         if (handler == null)
             return Collections.emptyList();

@@ -9,7 +9,7 @@ package com.hrznstudio.titanium.container.addon;
 
 import com.google.common.collect.Lists;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;

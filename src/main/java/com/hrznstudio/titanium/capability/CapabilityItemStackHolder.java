@@ -7,21 +7,11 @@
 
 package com.hrznstudio.titanium.capability;
 
+import com.hrznstudio.titanium.Titanium;
 import com.hrznstudio.titanium.api.capability.IStackHolder;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.capabilities.ItemCapability;
 
 public class CapabilityItemStackHolder {
-
-
-    public static final Capability<IStackHolder> ITEMSTACK_HOLDER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
-    });
-
-
-    public static void register(RegisterCapabilitiesEvent event) {
-        event.register(IStackHolder.class);
-    }
-
+    public static final ItemCapability<IStackHolder, Void> ITEMSTACK_HOLDER_CAPABILITY = ItemCapability.createVoid(new ResourceLocation(Titanium.MODID, "stackholder"), IStackHolder.class);
 }

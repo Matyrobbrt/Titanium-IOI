@@ -22,14 +22,14 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public abstract class ModuleController {
         configManager.add(type);
     }
 
-    public RegistryObject<CreativeModeTab> addCreativeTab(String name, Supplier<ItemStack> icon, String title, TitaniumTab tab){
+    public DeferredHolder<CreativeModeTab, CreativeModeTab> addCreativeTab(String name, Supplier<ItemStack> icon, String title, TitaniumTab tab){
         this.titaniumTabs.add(tab);
         return this.getRegistries().registerGeneric(Registries.CREATIVE_MODE_TAB, name, () -> CreativeModeTab.builder()
             .icon(icon)

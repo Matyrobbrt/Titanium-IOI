@@ -54,21 +54,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> implements IScreenAddonProvider,
     ITickableBlockEntity<T>, MenuProvider, IButtonHandler, IFacingComponentHarness, IContainerAddonProvider,
@@ -108,8 +106,8 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
     }
 
     public void openGui(Player player) {
-        if (player instanceof ServerPlayer) {
-            NetworkHooks.openScreen((ServerPlayer) player, this, buffer ->
+        if (player instanceof ServerPlayer sp) {
+            sp.openMenu(this, buffer ->
                 LocatorFactory.writePacketBuffer(buffer, new TileEntityLocatorInstance(this.worldPosition)));
         }
     }
@@ -175,17 +173,6 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
         this.bundles.stream().forEach(iComponentBundle -> iComponentBundle.getScreenAddons().forEach(this::addGuiAddonFactory));
     }
 
-    @Nonnull
-    @Override
-    public <U> LazyOptional<U> getCapability(@Nonnull Capability<U> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER && multiInventoryComponent != null) {
-            return multiInventoryComponent.getCapabilityForSide(FacingUtil.getFacingRelative(this.getFacingDirection(), side)).cast();
-        }
-        if (cap == ForgeCapabilities.FLUID_HANDLER && multiTankComponent != null) {
-            return multiTankComponent.getCapabilityForSide(FacingUtil.getFacingRelative(this.getFacingDirection(), side)).cast();
-        }
-        return LazyOptional.empty();
-    }
 
     public MultiInventoryComponent<T> getMultiInventoryComponent() {
         return multiInventoryComponent;
@@ -296,7 +283,7 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
                 if (multiTankComponent != null) {
                     for (FluidTankComponent<T> fluidTankComponent : multiTankComponent.getTanks()) {
                         if (fluidTankComponent.getName().equalsIgnoreCase(name))
-                            playerEntity.containerMenu.getCarried().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(iFluidHandlerItem -> {
+                            Optional.ofNullable(playerEntity.containerMenu.getCarried().getCapability(Capabilities.FluidHandler.ITEM)).ifPresent(iFluidHandlerItem -> {
                                 if (fill) {
                                     int amount = playerEntity.containerMenu.getCarried().getItem() instanceof BucketItem ? FluidType.BUCKET_VOLUME : Integer.MAX_VALUE;
                                     amount = fluidTankComponent.fill(iFluidHandlerItem.drain(amount, IFluidHandler.FluidAction.SIMULATE), IFluidHandler.FluidAction.EXECUTE);
@@ -366,15 +353,6 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
 
     public ContainerLevelAccess getWorldPosCallable() {
         return this.getLevel() != null ? ContainerLevelAccess.create(this.getLevel(), this.getBlockPos()) : ContainerLevelAccess.NULL;
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        if (this.multiInventoryComponent != null)
-            this.multiInventoryComponent.getLazyOptionals().forEach(LazyOptional::invalidate);
-        if (this.multiTankComponent != null)
-            this.multiTankComponent.getLazyOptionals().forEach(LazyOptional::invalidate);
     }
 
     public boolean canInteract() {

@@ -8,14 +8,14 @@
 package com.hrznstudio.titanium.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
 public abstract class Message implements Serializable {
 
-    protected abstract void handleMessage(NetworkEvent.Context context);
+    protected abstract void handleMessage(PlayPayloadContext context);
 
     public final void fromBytes(FriendlyByteBuf buf) {
         try {

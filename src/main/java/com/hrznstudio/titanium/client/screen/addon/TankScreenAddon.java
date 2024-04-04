@@ -32,18 +32,18 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BucketItem;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TankScreenAddon extends BasicScreenAddon {
 
@@ -105,8 +105,8 @@ public class TankScreenAddon extends BasicScreenAddon {
         List<Component> strings = new ArrayList<>();
         strings.add(Component.literal(ChatFormatting.GOLD + Component.translatable("tooltip.titanium.tank.fluid").getString()).append(tank.getFluid().isEmpty() ? Component.translatable("tooltip.titanium.tank.empty").withStyle(ChatFormatting.WHITE) : Component.translatable(tank.getFluid().getFluid().getFluidType().getDescriptionId())).withStyle(ChatFormatting.WHITE));
         strings.add(Component.translatable("tooltip.titanium.tank.amount").withStyle(ChatFormatting.GOLD).append(Component.literal(ChatFormatting.WHITE + new DecimalFormat().format(tank.getFluidAmount()) + ChatFormatting.GOLD + "/" + ChatFormatting.WHITE + new DecimalFormat().format(tank.getCapacity()) + ChatFormatting.DARK_AQUA + "mb")));
-        if (!Minecraft.getInstance().player.containerMenu.getCarried().isEmpty() && Minecraft.getInstance().player.containerMenu.getCarried().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent()) {
-            Minecraft.getInstance().player.containerMenu.getCarried().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(iFluidHandlerItem -> {
+        if (!Minecraft.getInstance().player.containerMenu.getCarried().isEmpty() && Minecraft.getInstance().player.containerMenu.getCarried().getCapability(Capabilities.FluidHandler.ITEM) != null) {
+            Optional.ofNullable(Minecraft.getInstance().player.containerMenu.getCarried().getCapability(Capabilities.FluidHandler.ITEM)).ifPresent(iFluidHandlerItem -> {
                 boolean isBucket = Minecraft.getInstance().player.containerMenu.getCarried().getItem() instanceof BucketItem;
                 int amount = isBucket ? FluidType.BUCKET_VOLUME : Integer.MAX_VALUE;
                 boolean canFillFromItem = false;
@@ -148,12 +148,12 @@ public class TankScreenAddon extends BasicScreenAddon {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!Minecraft.getInstance().player.containerMenu.getCarried().isEmpty() && Minecraft.getInstance().player.containerMenu.getCarried().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent()) {
+        if (!Minecraft.getInstance().player.containerMenu.getCarried().isEmpty() && Minecraft.getInstance().player.containerMenu.getCarried().getCapability(Capabilities.FluidHandler.ITEM) != null) {
             Screen screen = Minecraft.getInstance().screen;
             if (screen instanceof AbstractContainerScreen && ((AbstractContainerScreen) screen).getMenu() instanceof ILocatable) {
                 if (!isMouseOver(mouseX - ((AbstractContainerScreen<?>) screen).getGuiLeft(), mouseY - ((AbstractContainerScreen<?>) screen).getGuiTop()))
                     return false;
-                Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(SoundEvents.UI_BUTTON_CLICK.get(), SoundSource.PLAYERS, 1f, 1f, RandomSource.create(), Minecraft.getInstance().player.blockPosition())); //getPosition
+                Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.PLAYERS, 1f, 1f, RandomSource.create(), Minecraft.getInstance().player.blockPosition())); //getPosition
                 ILocatable locatable = (ILocatable) ((AbstractContainerScreen) screen).getMenu();
                 CompoundTag compoundNBT = new CompoundTag();
                 if (tank instanceof FluidTankComponent) {
@@ -161,7 +161,7 @@ public class TankScreenAddon extends BasicScreenAddon {
                 } else {
                     compoundNBT.putBoolean("Invalid", true);
                 }
-                Minecraft.getInstance().player.containerMenu.getCarried().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(iFluidHandlerItem -> {
+                Optional.ofNullable(Minecraft.getInstance().player.containerMenu.getCarried().getCapability(Capabilities.FluidHandler.ITEM)).ifPresent(iFluidHandlerItem -> {
                     boolean isBucket = Minecraft.getInstance().player.containerMenu.getCarried().getItem() instanceof BucketItem;
                     int amount = isBucket ? FluidType.BUCKET_VOLUME : Integer.MAX_VALUE;
                     boolean canFillFromItem = false;
@@ -176,7 +176,7 @@ public class TankScreenAddon extends BasicScreenAddon {
                     if (canFillFromItem && button == 0) compoundNBT.putBoolean("Fill", true);
                     if (canDrainFromItem && button == 1) compoundNBT.putBoolean("Fill", false);
                 });
-                Titanium.NETWORK.get().sendToServer(new ButtonClickNetworkMessage(locatable.getLocatorInstance(), -3, compoundNBT));
+                Titanium.NETWORK.sendToServer(new ButtonClickNetworkMessage(locatable.getLocatorInstance(), -3, compoundNBT));
                 return true;
             }
         }

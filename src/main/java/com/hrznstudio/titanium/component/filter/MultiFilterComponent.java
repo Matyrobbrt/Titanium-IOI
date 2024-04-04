@@ -12,12 +12,11 @@ import com.hrznstudio.titanium.api.client.IScreenAddon;
 import com.hrznstudio.titanium.api.client.IScreenAddonProvider;
 import com.hrznstudio.titanium.api.filter.IFilter;
 import com.hrznstudio.titanium.component.IComponentHandler;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class MultiFilterComponent implements IScreenAddonProvider, IComponentHandler {
     public final List<IFilter> filters;

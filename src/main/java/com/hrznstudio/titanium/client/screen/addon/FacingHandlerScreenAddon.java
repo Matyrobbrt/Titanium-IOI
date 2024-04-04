@@ -200,7 +200,7 @@ public class FacingHandlerScreenAddon extends BasicScreenAddon {
                                 compound.putInt("Next", faceMode);
                                 compound.putString("Name", handler.getName());
                                 if (container instanceof ILocatable) {
-                                    Titanium.NETWORK.get().sendToServer(new ButtonClickNetworkMessage(
+                                    Titanium.NETWORK.sendToServer(new ButtonClickNetworkMessage(
                                             ((ILocatable) container).getLocatorInstance(), -1, compound));
                                 } else {
                                     Titanium.LOGGER.warn("Failed to Find Locatable Instance for Container");

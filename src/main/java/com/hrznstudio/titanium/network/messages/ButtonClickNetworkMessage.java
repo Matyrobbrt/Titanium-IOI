@@ -12,7 +12,7 @@ import com.hrznstudio.titanium.network.Message;
 import com.hrznstudio.titanium.network.locator.LocatorInstance;
 import com.hrznstudio.titanium.util.CastingUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Optional;
 
@@ -33,12 +33,12 @@ public class ButtonClickNetworkMessage extends Message {
     }
 
     @Override
-    protected void handleMessage(NetworkEvent.Context context) {
-        context.enqueueWork(() -> {
-            Optional.ofNullable(context.getSender())
+    protected void handleMessage(PlayPayloadContext context) {
+        context.workHandler().submitAsync(() -> {
+            context.player()
                 .flatMap(locatorInstance::locale)
                 .flatMap(CastingUtil.attemptCast(IButtonHandler.class))
-                .ifPresent(iButtonHandler -> iButtonHandler.handleButtonMessage(id, context.getSender(), data));
+                .ifPresent(iButtonHandler -> iButtonHandler.handleButtonMessage(id, context.player().orElseThrow(), data));
         });
     }
 }

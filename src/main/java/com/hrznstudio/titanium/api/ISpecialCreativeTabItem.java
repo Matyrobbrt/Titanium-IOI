@@ -7,7 +7,7 @@
 
 package com.hrznstudio.titanium.api;
 
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public interface ISpecialCreativeTabItem {
 

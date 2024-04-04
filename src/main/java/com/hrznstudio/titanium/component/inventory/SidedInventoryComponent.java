@@ -24,15 +24,15 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class SidedInventoryComponent<T extends IComponentHarness> extends InventoryComponent<T> implements IFacingComponent {
 
@@ -127,7 +127,7 @@ public class SidedInventoryComponent<T extends IComponentHarness> extends Invent
                 Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
                 BlockEntity entity = world.getBlockEntity(pos.relative(real));
                 if (entity != null) {
-                    boolean hasWorked = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, real.getOpposite())
+                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
                         .map(iItemHandler -> transfer(sideness, this, iItemHandler, workAmount))
                         .orElse(false);
                     if (hasWorked) {
@@ -141,7 +141,7 @@ public class SidedInventoryComponent<T extends IComponentHarness> extends Invent
                 Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
                 BlockEntity entity = world.getBlockEntity(pos.relative(real));
                 if (entity != null) {
-                    boolean hasWorked = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, real.getOpposite())
+                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.ItemHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
                         .map(iItemHandler -> transfer(sideness, iItemHandler, this, workAmount))
                         .orElse(false);
                     if (hasWorked) {

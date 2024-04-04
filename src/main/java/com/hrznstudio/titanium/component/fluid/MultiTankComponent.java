@@ -17,28 +17,33 @@ import com.hrznstudio.titanium.component.sideness.IFacingComponent;
 import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.container.addon.IContainerAddonProvider;
 import com.hrznstudio.titanium.util.FacingUtil;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
 
 public class MultiTankComponent<T extends IComponentHarness> implements IScreenAddonProvider, IContainerAddonProvider,
     ICapabilityHolder<MultiTankComponent.MultiTankCapabilityHandler<T>>, IComponentHandler {
 
     private final LinkedHashSet<FluidTankComponent<T>> tanks;
-    private final HashMap<FacingUtil.Sideness, LazyOptional<MultiTankCapabilityHandler<T>>> lazyOptionals;
+    private final HashMap<FacingUtil.Sideness, Optional<MultiTankCapabilityHandler<T>>> lazyOptionals;
 
     public MultiTankComponent() {
         tanks = new LinkedHashSet<>();
         this.lazyOptionals = new HashMap<>();
-        lazyOptionals.put(null, LazyOptional.empty());
+        lazyOptionals.put(null, Optional.empty());
         for (FacingUtil.Sideness value : FacingUtil.Sideness.values()) {
-            lazyOptionals.put(value, LazyOptional.empty());
+            lazyOptionals.put(value, Optional.empty());
         }
     }
 
@@ -57,8 +62,7 @@ public class MultiTankComponent<T extends IComponentHarness> implements IScreenA
 
     private void rebuildCapability(FacingUtil.Sideness[] sides) {
         for (FacingUtil.Sideness side : sides) {
-            lazyOptionals.get(side).invalidate();
-            lazyOptionals.put(side, LazyOptional.of(() -> new MultiTankCapabilityHandler<>(getHandlersForSide(side))));
+            lazyOptionals.put(side, Optional.of(new MultiTankCapabilityHandler<>(getHandlersForSide(side))));
         }
     }
 
@@ -82,7 +86,7 @@ public class MultiTankComponent<T extends IComponentHarness> implements IScreenA
 
     @Nonnull
     @Override
-    public LazyOptional<MultiTankCapabilityHandler<T>> getCapabilityForSide(@Nullable FacingUtil.Sideness sideness) {
+    public Optional<MultiTankCapabilityHandler<T>> getCapabilityForSide(@Nullable FacingUtil.Sideness sideness) {
         return lazyOptionals.get(sideness);
     }
 
@@ -96,11 +100,6 @@ public class MultiTankComponent<T extends IComponentHarness> implements IScreenA
             }
         }
         return false;
-    }
-
-    @Override
-    public Collection<LazyOptional<MultiTankCapabilityHandler<T>>> getLazyOptionals() {
-        return this.lazyOptionals.values();
     }
 
     public HashSet<FluidTankComponent<T>> getTanks() {

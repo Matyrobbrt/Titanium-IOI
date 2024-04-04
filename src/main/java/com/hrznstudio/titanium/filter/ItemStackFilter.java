@@ -15,9 +15,8 @@ import com.hrznstudio.titanium.api.filter.IFilter;
 import com.hrznstudio.titanium.client.screen.addon.ItemstackFilterScreenAddon;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class ItemStackFilter implements IFilter<ItemStack> {
     private static FilterAction<ItemStack> SIMPLE = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> ItemStack.matches(stack, itemStackFilterSlot.getFilter())));
-    private static FilterAction<ItemStack> IGNORE_DURABILITY = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> stack.equals(itemStackFilterSlot.getFilter(), false)));
+    private static FilterAction<ItemStack> IGNORE_DURABILITY = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> ItemStack.isSameItem(itemStackFilterSlot.getFilter(), stack)));
     private static FilterAction<ItemStack> DURABILITY_LESS_50 = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> ItemStack.matches(stack, itemStackFilterSlot.getFilter())) && stack.getDamageValue() < stack.getMaxDamage() / 50);
     private static FilterAction<ItemStack> DAMAGED = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> ItemStack.matches(stack, itemStackFilterSlot.getFilter())) && stack.getDamageValue() < stack.getMaxDamage());
     private static FilterAction<ItemStack> NOT_DAMAGED = new FilterAction<>((itemStackIFilter, stack) -> Arrays.stream(itemStackIFilter.getFilterSlots()).anyMatch(itemStackFilterSlot -> ItemStack.matches(stack, itemStackFilterSlot.getFilter())) && stack.getDamageValue() == stack.getMaxDamage());
@@ -107,7 +106,7 @@ public class ItemStackFilter implements IFilter<ItemStack> {
         CompoundTag filter = new CompoundTag();
         for (FilterSlot<ItemStack> itemStackFilterSlot : this.filter) {
             if (itemStackFilterSlot != null && !itemStackFilterSlot.getFilter().isEmpty())
-                filter.put(itemStackFilterSlot.getFilterID() + "", itemStackFilterSlot.getFilter().serializeNBT());
+                filter.put(itemStackFilterSlot.getFilterID() + "", itemStackFilterSlot.getFilter().save(new CompoundTag()));
         }
         compoundNBT.put("Filter", filter);
         compoundNBT.putString("Type", type.name());

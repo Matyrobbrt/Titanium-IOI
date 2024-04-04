@@ -72,8 +72,8 @@ public class WidgetScreenAddon extends BasicScreenAddon {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        return widget.mouseScrolled(mouseX, mouseY, delta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return widget.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

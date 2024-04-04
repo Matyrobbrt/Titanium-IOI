@@ -12,17 +12,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class ShapelessEnchantSerializer extends ShapelessRecipe.Serializer {
     @Nonnull
-    public ShapelessRecipe fromJson(@Nonnull ResourceLocation recipeId, JsonObject json) {
+    public ShapelessRecipe fromJson(JsonObject json) {
         String s = GsonHelper.getAsString(json, "group", "");
         NonNullList<Ingredient> ingredients = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
         if (ingredients.isEmpty()) {
@@ -39,7 +39,7 @@ public class ShapelessEnchantSerializer extends ShapelessRecipe.Serializer {
             throw new JsonParseException("Too many ingredients for shapeless recipe the max is " + 9);
         } else {
             JsonObject jsonObject = GsonHelper.getAsJsonObject(json, "result");
-            ItemStack itemstack = ShapedRecipe.itemStackFromJson(jsonObject);
+            ItemStack itemstack = ItemStack.ITEM_WITH_COUNT_CODEC.parse(JsonOps.INSTANCE, jsonObject).getOrThrow(false, err -> {});
             if (jsonObject.has("enchantments")) {
                 JsonElement enchantments = jsonObject.get("enchantments");
                 Map<Enchantment, Integer> enchantmentLevelMap = Maps.newHashMap();
@@ -58,13 +58,13 @@ public class ShapelessEnchantSerializer extends ShapelessRecipe.Serializer {
             } else {
                 throw new JsonParseException("No String or Array found for enchantments");
             }
-            return new ShapelessRecipe(recipeId, s, CraftingBookCategory.MISC, itemstack, ingredients);
+            return new ShapelessRecipe(s, CraftingBookCategory.MISC, itemstack, ingredients);
         }
     }
 
     private static Pair<Enchantment, Integer> parseJson(JsonObject jsonObject) {
         String name = GsonHelper.getAsString(jsonObject, "name");
-        Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(new ResourceLocation(name));
+        Enchantment enchantment = BuiltInRegistries.ENCHANTMENT.get(new ResourceLocation(name));
         if (enchantment == null) {
             throw new JsonParseException("Failed to find enchantment named: " + name);
         }
@@ -75,7 +75,7 @@ public class ShapelessEnchantSerializer extends ShapelessRecipe.Serializer {
         NonNullList<Ingredient> ingredients = NonNullList.create();
 
         for(int i = 0; i < ingredientArray.size(); ++i) {
-            Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i));
+            Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i),false);
             if (!ingredient.isEmpty()) {
                 ingredients.add(ingredient);
             }

@@ -8,8 +8,6 @@
 package com.hrznstudio.titanium.util;
 
 import com.hrznstudio.titanium.Titanium;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
 import java.lang.annotation.Annotation;
@@ -17,6 +15,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforgespi.language.ModFileScanData;
 
 public class AnnotationUtil {
 

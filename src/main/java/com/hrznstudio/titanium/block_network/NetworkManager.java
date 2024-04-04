@@ -42,11 +42,11 @@ public class NetworkManager extends SavedData {
     }
 
     public static NetworkManager get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent((tag) -> {
+        return level.getDataStorage().computeIfAbsent(new Factory<>(() -> new NetworkManager(level), (tag) -> {
             NetworkManager networkManager = new NetworkManager(level);
             networkManager.load(tag);
             return networkManager;
-        }, () -> new NetworkManager(level), NAME);
+        }), NAME);
     }
 
     public void addNetwork(Network network) {

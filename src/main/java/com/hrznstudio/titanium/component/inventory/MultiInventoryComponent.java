@@ -18,11 +18,9 @@ import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.container.addon.IContainerAddonProvider;
 import com.hrznstudio.titanium.util.FacingUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.ItemStackHandler;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 import java.util.*;
 
@@ -31,14 +29,14 @@ public class MultiInventoryComponent<T extends IComponentHarness> implements ISc
     ICapabilityHolder<MultiInventoryComponent.MultiInvCapabilityHandler<T>>, IComponentHandler {
 
     private final LinkedHashSet<InventoryComponent<T>> inventoryHandlers;
-    private final Map<FacingUtil.Sideness, LazyOptional<MultiInvCapabilityHandler<T>>> lazyOptionals;
+    private final Map<FacingUtil.Sideness, Optional<MultiInvCapabilityHandler<T>>> lazyOptionals;
 
     public MultiInventoryComponent() {
         this.inventoryHandlers = new LinkedHashSet<>();
         this.lazyOptionals = new HashMap<>();
-        lazyOptionals.put(null, LazyOptional.empty());
+        lazyOptionals.put(null, Optional.empty());
         for (FacingUtil.Sideness value : FacingUtil.Sideness.values()) {
-            lazyOptionals.put(value, LazyOptional.empty());
+            lazyOptionals.put(value, Optional.empty());
         }
     }
 
@@ -56,8 +54,7 @@ public class MultiInventoryComponent<T extends IComponentHarness> implements ISc
 
     private void rebuildCapability(FacingUtil.Sideness[] sides) {
         for (FacingUtil.Sideness side : sides) {
-            lazyOptionals.get(side).invalidate();
-            lazyOptionals.put(side, LazyOptional.of(() -> new MultiInvCapabilityHandler<>(getHandlersForSide(side))));
+            lazyOptionals.put(side, Optional.of(new MultiInvCapabilityHandler<>(getHandlersForSide(side))));
         }
     }
 
@@ -81,7 +78,7 @@ public class MultiInventoryComponent<T extends IComponentHarness> implements ISc
 
     @Nonnull
     @Override
-    public LazyOptional<MultiInvCapabilityHandler<T>> getCapabilityForSide(FacingUtil.Sideness sideness) {
+    public Optional<MultiInvCapabilityHandler<T>> getCapabilityForSide(FacingUtil.Sideness sideness) {
         return lazyOptionals.get(sideness);
     }
 
@@ -214,10 +211,5 @@ public class MultiInventoryComponent<T extends IComponentHarness> implements ISc
             }
             return 0;
         }
-    }
-
-    @Override
-    public Collection<LazyOptional<MultiInvCapabilityHandler<T>>> getLazyOptionals() {
-        return lazyOptionals.values();
     }
 }

@@ -28,11 +28,11 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class BasicAddonContainer extends BasicInventoryContainer implements IObjectContainer, ILocatable {
 
-    public static RegistryObject<MenuType<?>> TYPE;
+    public static DeferredHolder<MenuType<?>, MenuType<?>> TYPE;
 
     private final ContainerLevelAccess worldPosCallable;
     private final Object provider;

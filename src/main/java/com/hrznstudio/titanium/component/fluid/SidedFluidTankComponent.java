@@ -24,16 +24,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidTankComponent<T> implements IFacingComponent, IScreenAddonProvider {
 
@@ -105,7 +105,7 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
                 Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
                 BlockEntity entity = world.getBlockEntity(pos.relative(real));
                 if (entity != null) {
-                    boolean hasWorked = entity.getCapability(ForgeCapabilities.FLUID_HANDLER, real.getOpposite())
+                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.FluidHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
                         .map(iFluidHandler -> transfer(this, iFluidHandler, workAmount))
                         .orElse(false);
                     if (hasWorked) {
@@ -119,7 +119,7 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
                 Direction real = FacingUtil.getFacingFromSide(blockFacing, sideness);
                 BlockEntity entity = world.getBlockEntity(pos.relative(real));
                 if (entity != null) {
-                    boolean hasWorked = entity.getCapability(ForgeCapabilities.FLUID_HANDLER, real.getOpposite())
+                    boolean hasWorked = Optional.ofNullable(world.getCapability(Capabilities.FluidHandler.BLOCK, entity.getBlockPos(), entity.getBlockState(), entity, real.getOpposite()))
                         .map(iFluidHandler -> transfer(iFluidHandler, this, workAmount))
                         .orElse(false);
                     if (hasWorked) {

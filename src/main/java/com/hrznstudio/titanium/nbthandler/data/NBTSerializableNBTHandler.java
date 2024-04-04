@@ -9,8 +9,7 @@ package com.hrznstudio.titanium.nbthandler.data;
 
 import com.hrznstudio.titanium.api.INBTHandler;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
-
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

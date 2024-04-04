@@ -14,17 +14,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
 public class AssetTestBlock extends RotatableBlock<AssetTestTile> {
 
-    public static Pair<RegistryObject<Block>, RegistryObject<BlockEntityType<?>>> TEST;
+    public static Pair<DeferredHolder<Block, Block>, DeferredHolder<BlockEntityType<?>, BlockEntityType<?>>> TEST;
 
     public AssetTestBlock() {
-        super("asset_test", Properties.copy(Blocks.STONE), AssetTestTile.class);
+        super("asset_test", Properties.ofFullCopy(Blocks.STONE), AssetTestTile.class);
     }
 
 

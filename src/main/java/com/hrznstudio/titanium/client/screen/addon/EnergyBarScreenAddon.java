@@ -15,8 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.energy.IEnergyStorage;
-
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.Arrays;

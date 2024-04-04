@@ -124,11 +124,10 @@ public interface IScreenAddon extends GuiEventListener {
      *
      * @param mouseX The X coordinate of the mouse where the scroll was initiated
      * @param mouseY The Y coordinate of the mouse where the scroll was initiated
-     * @param delta The scroll wheel delta (Change rate)
      * @return Returns true if the scroll was handled
      */
     @Override
-    default boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    default boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return false;
     }
 

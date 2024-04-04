@@ -9,8 +9,9 @@ package com.hrznstudio.titanium.energy;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
+// TODO - replace with attachment
 public class EnergyStorageItemStack implements IEnergyStorage {
     private static final String ENERGY = "stored";
     private static final String MAX = "max";

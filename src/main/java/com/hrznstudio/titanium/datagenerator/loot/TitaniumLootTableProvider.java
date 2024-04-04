@@ -15,8 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.common.util.NonNullLazy;
-
+import net.neoforged.neoforge.common.util.NonNullLazy;
 import java.util.*;
 
 public class TitaniumLootTableProvider extends LootTableProvider {

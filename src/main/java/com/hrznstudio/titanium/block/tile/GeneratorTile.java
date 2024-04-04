@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nonnull;
 
@@ -96,11 +96,9 @@ public abstract class GeneratorTile<T extends GeneratorTile<T>> extends PoweredT
         super.serverTick(level, pos, state, blockEntity);
         for (Direction facing : Direction.values()) {
             BlockPos checking = this.worldPosition.relative(facing);
-            BlockEntity checkingTile = this.level.getBlockEntity(checking);
-            if (checkingTile != null) {
-                checkingTile.getCapability(ForgeCapabilities.ENERGY, facing.getOpposite()).ifPresent(storage -> {
-                    this.getEnergyStorage().extractEnergy(storage.receiveEnergy(this.getEnergyStorage().extractEnergy(this.getExtractingEnergy(), true), false), false);
-                });
+            var storage = level.getCapability(Capabilities.EnergyStorage.BLOCK, checking, facing.getOpposite());
+            if (storage != null) {
+                this.getEnergyStorage().extractEnergy(storage.receiveEnergy(this.getEnergyStorage().extractEnergy(this.getExtractingEnergy(), true), false), false);
             }
         }
     }

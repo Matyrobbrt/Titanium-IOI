@@ -17,18 +17,18 @@ import com.hrznstudio.titanium.network.IButtonHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-
+import net.neoforged.neoforge.capabilities.ItemCapability;
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Optional;
 
 public class ItemStackHarness implements IContainerAddonProvider, IScreenAddonProvider, IButtonHandler {
     private final ItemStack itemStack;
     private final IButtonHandler buttonHandler;
-    private final Capability<?>[] capabilities;
+    private final ItemCapability<?, Void>[] capabilities;
     private final IScreenAddonProvider defaultProvider;
 
-    public ItemStackHarness(ItemStack itemStack, IScreenAddonProvider defaultProvider, IButtonHandler buttonHandler, Capability<?>... capabilities) {
+    public ItemStackHarness(ItemStack itemStack, IScreenAddonProvider defaultProvider, IButtonHandler buttonHandler, ItemCapability<?, Void>... capabilities) {
         this.itemStack = itemStack;
         this.defaultProvider = defaultProvider;
         this.buttonHandler = buttonHandler;
@@ -40,8 +40,8 @@ public class ItemStackHarness implements IContainerAddonProvider, IScreenAddonPr
     public List<IFactory<? extends IScreenAddon>> getScreenAddons() {
         List<IFactory<? extends IScreenAddon>> screenAddons = Lists.newArrayList();
         if (defaultProvider != null) screenAddons.addAll(defaultProvider.getScreenAddons());
-        for (Capability<?> capability : capabilities) {
-            screenAddons.addAll(itemStack.getCapability(capability)
+        for (var capability : capabilities) {
+            screenAddons.addAll(Optional.ofNullable(itemStack.getCapability(capability))
                 .filter(cap -> cap instanceof IScreenAddonProvider)
                 .map(cap -> (IScreenAddonProvider)cap)
                 .map(IScreenAddonProvider::getScreenAddons)
@@ -54,8 +54,8 @@ public class ItemStackHarness implements IContainerAddonProvider, IScreenAddonPr
     @Nonnull
     public List<IFactory<? extends IContainerAddon>> getContainerAddons() {
         List<IFactory<? extends IContainerAddon>> containerAddons = Lists.newArrayList();
-        for (Capability<?> capability : capabilities) {
-            containerAddons.addAll(itemStack.getCapability(capability)
+        for (var capability : capabilities) {
+            containerAddons.addAll(Optional.ofNullable(itemStack.getCapability(capability))
                 .filter(cap -> cap instanceof IContainerAddonProvider)
                 .map(cap -> (IContainerAddonProvider)cap)
                 .map(IContainerAddonProvider::getContainerAddons)

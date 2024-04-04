@@ -9,6 +9,7 @@ package com.hrznstudio.titanium.fluid;
 
 import com.hrznstudio.titanium.module.DeferredRegistryHelper;
 import com.hrznstudio.titanium.tab.TitaniumTab;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -19,57 +20,57 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class TitaniumFluidInstance {
 
-    private RegistryObject<FluidType> fluidType;
-    private RegistryObject<Fluid> flowingFluid;
-    private RegistryObject<Fluid> sourceFluid;
-    private RegistryObject<Item> bucketFluid;
-    private RegistryObject<Block> blockFluid;
+    private DeferredHolder<FluidType, FluidType> fluidType;
+    private DeferredHolder<Fluid, Fluid> flowingFluid;
+    private DeferredHolder<Fluid, Fluid> sourceFluid;
+    private DeferredHolder<Item, Item> bucketFluid;
+    private DeferredHolder<Block, Block> blockFluid;
     private final String fluid;
 
     public TitaniumFluidInstance(DeferredRegistryHelper helper, String fluid, FluidType.Properties fluidTypeProperties, IClientFluidTypeExtensions renderProperties, @Nullable TitaniumTab group) {
         this.fluid = fluid;
-        this.sourceFluid = helper.registerGeneric(ForgeRegistries.FLUIDS.getRegistryKey(), fluid, () -> new TitaniumFluid.Source(this));
-        this.flowingFluid = helper.registerGeneric(ForgeRegistries.FLUIDS.getRegistryKey(), fluid + "_flowing", () -> new TitaniumFluid.Flowing(this));
-        this.fluidType = helper.registerGeneric(ForgeRegistries.Keys.FLUID_TYPES, fluid, () -> new FluidType(fluidTypeProperties) {
+        this.sourceFluid = helper.registerGeneric(Registries.FLUID, fluid, () -> new TitaniumFluid.Source(this));
+        this.flowingFluid = helper.registerGeneric(Registries.FLUID, fluid + "_flowing", () -> new TitaniumFluid.Flowing(this));
+        this.fluidType = helper.registerGeneric(NeoForgeRegistries.Keys.FLUID_TYPES, fluid, () -> new FluidType(fluidTypeProperties) {
             @Override
             public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
                 consumer.accept(renderProperties);
             }
         });
-        this.bucketFluid = helper.registerGeneric(ForgeRegistries.ITEMS.getRegistryKey(), fluid + "_bucket", () -> {
+        this.bucketFluid = helper.registerGeneric(Registries.ITEM, fluid + "_bucket", () -> {
             var item = new BucketItem(this.sourceFluid, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1));
             if (group != null) group.getTabList().add(item);
             return item;
         });
-        this.blockFluid = helper.registerGeneric(ForgeRegistries.BLOCKS.getRegistryKey(), fluid, () -> new LiquidBlock(() -> (FlowingFluid) sourceFluid.get(), Block.Properties.of().mapColor(MapColor.WATER).replaceable().noCollission().strength(100.0F).pushReaction(PushReaction.DESTROY).noLootTable().liquid().sound(SoundType.EMPTY)));
+        this.blockFluid = helper.registerGeneric(Registries.BLOCK, fluid, () -> new LiquidBlock(() -> (FlowingFluid) sourceFluid.get(), Block.Properties.of().mapColor(MapColor.WATER).replaceable().noCollission().strength(100.0F).pushReaction(PushReaction.DESTROY).noLootTable().liquid().sound(SoundType.EMPTY)));
     }
 
-    public RegistryObject<FluidType> getFluidType() {
+    public DeferredHolder<FluidType, FluidType> getFluidType() {
         return fluidType;
     }
-    public RegistryObject<Fluid>  getFlowingFluid() {
+    public DeferredHolder<Fluid, Fluid>  getFlowingFluid() {
         return flowingFluid;
     }
 
-    public RegistryObject<Fluid>  getSourceFluid() {
+    public DeferredHolder<Fluid, Fluid>  getSourceFluid() {
         return sourceFluid;
     }
 
-    public RegistryObject<Item> getBucketFluid() {
+    public DeferredHolder<Item, Item> getBucketFluid() {
         return bucketFluid;
     }
 
-    public RegistryObject<Block> getBlockFluid() {
+    public DeferredHolder<Block, Block> getBlockFluid() {
         return blockFluid;
     }
 

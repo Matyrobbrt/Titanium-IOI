@@ -14,8 +14,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class RewardWorldStorage extends SavedData {
-
+    public static final SavedData.Factory<RewardWorldStorage> FACTORY = new Factory<>(RewardWorldStorage::new, compoundTag -> new RewardWorldStorage().load(compoundTag));
     public static String NAME = "TitaniumReward";
     private HashMap<UUID, EnabledRewards> rewards;
     private List<ResourceLocation> freeRewards;
@@ -31,7 +31,7 @@ public class RewardWorldStorage extends SavedData {
     }
 
     public static RewardWorldStorage get(ServerLevel world) {
-        return world.getDataStorage().computeIfAbsent(compoundTag -> new RewardWorldStorage().load(compoundTag), RewardWorldStorage::new, NAME);
+        return world.getDataStorage().computeIfAbsent(FACTORY, NAME);
     }
 
     public void remove(UUID uuid, ResourceLocation resourceLocation) {

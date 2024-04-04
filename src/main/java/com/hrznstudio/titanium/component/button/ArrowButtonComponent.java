@@ -11,11 +11,10 @@ import com.hrznstudio.titanium.api.IFactory;
 import com.hrznstudio.titanium.api.client.IScreenAddon;
 import com.hrznstudio.titanium.client.screen.addon.ArrowButtonScreenAddon;
 import com.hrznstudio.titanium.util.FacingUtil;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.util.Collections;
 import java.util.List;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class ArrowButtonComponent extends ButtonComponent {
 

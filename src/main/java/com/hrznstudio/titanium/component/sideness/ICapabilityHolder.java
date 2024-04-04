@@ -8,18 +8,15 @@
 package com.hrznstudio.titanium.component.sideness;
 
 import com.hrznstudio.titanium.util.FacingUtil;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
+import java.util.Optional;
 
 public interface ICapabilityHolder<T> {
 
     @Nonnull
-    LazyOptional<T> getCapabilityForSide(@Nullable FacingUtil.Sideness sideness);
+    Optional<T> getCapabilityForSide(@Nullable FacingUtil.Sideness sideness);
 
     boolean handleFacingChange(String handlerName, FacingUtil.Sideness facing, int mode);
-
-    Collection<LazyOptional<T>> getLazyOptionals();
 }

@@ -7,10 +7,9 @@
 
 package com.hrznstudio.titanium.util;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-
 import java.util.function.Supplier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public final class SidedHandler {
     private SidedHandler() {

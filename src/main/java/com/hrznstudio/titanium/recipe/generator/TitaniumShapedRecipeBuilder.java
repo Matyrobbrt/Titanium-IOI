@@ -9,35 +9,35 @@ package com.hrznstudio.titanium.recipe.generator;
 
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ItemExistsCondition;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
-public class TitaniumShapedRecipeBuilder extends ShapedRecipeBuilder implements IConditionBuilder {
+public class TitaniumShapedRecipeBuilder extends ShapedRecipeBuilder {
 
     private ResourceLocation resourceLocation;
-    private ConditionalRecipe.Builder conditional;
+    private final List<ICondition> conditions;
     private boolean build;
     private boolean criterion;
 
     public TitaniumShapedRecipeBuilder(RecipeCategory recipeCategory, ItemLike resultIn, int countIn) {
         super(recipeCategory, resultIn, countIn);
-        this.resourceLocation = ForgeRegistries.ITEMS.getKey(resultIn.asItem());
+        this.resourceLocation = BuiltInRegistries.ITEM.getKey(resultIn.asItem());
         this.build = false;
-        this.conditional = ConditionalRecipe.builder().addCondition(
-            and(
-                itemExists(resourceLocation.getNamespace(), resourceLocation.getPath())
-            ));
+        this.conditions = new ArrayList<>();
+        condition(new ItemExistsCondition(resourceLocation));
     }
 
     public static TitaniumShapedRecipeBuilder shapedRecipe(ItemLike resultIn) {
@@ -52,13 +52,8 @@ public class TitaniumShapedRecipeBuilder extends ShapedRecipeBuilder implements 
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> consumerIn) {
-        if (!this.build) {
-            this.build = true;
-            this.conditional.addRecipe(this::save).build(consumerIn, resourceLocation);
-        } else {
-            this.save(consumerIn, resourceLocation);
-        }
+    public void save(RecipeOutput pRecipeOutput) {
+        super.save(pRecipeOutput.withConditions(conditions.toArray(ICondition[]::new)));
     }
 
     @Override
@@ -84,12 +79,8 @@ public class TitaniumShapedRecipeBuilder extends ShapedRecipeBuilder implements 
         return this;
     }
 
-    public ConditionalRecipe.Builder getConditional() {
-        return conditional;
-    }
-
-    public TitaniumShapedRecipeBuilder setConditional(ConditionalRecipe.Builder conditional) {
-        this.conditional = conditional;
+    public TitaniumShapedRecipeBuilder condition(ICondition condition) {
+        this.conditions.add(condition);
         return this;
     }
 }

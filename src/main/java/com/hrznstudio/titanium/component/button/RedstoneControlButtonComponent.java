@@ -16,12 +16,11 @@ import com.hrznstudio.titanium.block.redstone.RedstoneManager;
 import com.hrznstudio.titanium.block.tile.BasicTile;
 import com.hrznstudio.titanium.client.screen.addon.StateButtonAddon;
 import com.hrznstudio.titanium.client.screen.addon.StateButtonInfo;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class RedstoneControlButtonComponent<T extends IEnumValues<T> & IRedstoneAction> extends ButtonComponent {
 

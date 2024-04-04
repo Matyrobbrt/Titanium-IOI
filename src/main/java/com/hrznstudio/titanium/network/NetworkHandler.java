@@ -8,57 +8,70 @@
 package com.hrznstudio.titanium.network;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class NetworkHandler {
-
-    private SimpleChannel network;
+    private final String namespace;
+    private final Map<Class<? extends Message>, ResourceLocation> ids = new HashMap<>();
+    private final List<Consumer<IPayloadRegistrar>> registrar = new ArrayList<>();
     private int i;
 
     public NetworkHandler(String modid) {
         i = 0;
-        network = NetworkRegistry.newSimpleChannel(
-                new ResourceLocation(modid, "network"),
-                () -> "1.0",
-                s -> true,
-                s -> true
-        );
+        namespace = modid;
     }
 
-    public SimpleChannel get() {
-        return network;
+    public record MessageWrapper(ResourceLocation id, Message message) implements CustomPacketPayload {
+
+        @Override
+        public void write(FriendlyByteBuf pBuffer) {
+            message.toBytes(pBuffer);
+        }
     }
 
     public <REQ extends Message> void registerMessage(Class<REQ> message) {
-        network.registerMessage(i++, message, Message::toBytes,
-                buffer -> {
-                    try {
-                        REQ req = message.getConstructor().newInstance();
-                        req.fromBytes(buffer);
-                        return req;
-                    } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
-                (req, contextSupplier) -> {
-                    NetworkEvent.Context context = contextSupplier.get();
-                    req.handleMessage(context);
-                    context.setPacketHandled(true);
-                });
+        final ResourceLocation id = new ResourceLocation(namespace, Integer.toString(i++));
+        ids.put(message, id);
+        registrar.add(reg -> reg.play(
+            id, buffer -> {
+                try {
+                    REQ req = message.getConstructor().newInstance();
+                    req.fromBytes(buffer);
+                    return new MessageWrapper(id, req);
+                } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }, (payload, context) -> payload.message.handleMessage(context)
+        ));
+    }
+
+    public CustomPacketPayload wrap(Message message) {
+        return new MessageWrapper(ids.get(message.getClass()), message);
     }
 
     public void sendToNearby(Level world, BlockPos pos, int distance, Message message) {
-        world.getEntitiesOfClass(ServerPlayer.class, new AABB(pos).inflate(distance)).forEach(playerEntity -> {
-            network.sendTo(message, playerEntity.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        });
+        world.getEntitiesOfClass(ServerPlayer.class, new AABB(pos).inflate(distance)).forEach(playerEntity -> sendTo(message, playerEntity));
+    }
+
+    public void sendToServer(Message message) {
+        PacketDistributor.SERVER.noArg().send(wrap(message));
+    }
+
+    public void sendTo(Message message, ServerPlayer player) {
+        player.connection.send(wrap(message));
     }
 }

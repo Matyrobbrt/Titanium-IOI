@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -35,9 +35,9 @@ public class CreativeFEGeneratorTile extends PoweredTile<CreativeFEGeneratorTile
         super.serverTick(level, pos, state, blockEntity);
         this.getEnergyStorage().receiveEnergy(Integer.MAX_VALUE, false);
         for (Direction direction : Direction.values()) {
-            BlockEntity tile = this.level.getBlockEntity(this.getBlockPos().relative(direction));
-            if (tile != null)
-                tile.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(iEnergyStorage -> iEnergyStorage.receiveEnergy(Integer.MAX_VALUE, false));
+            var iEnergyStorage = this.level.getCapability(Capabilities.EnergyStorage.BLOCK, this.getBlockPos().relative(direction), direction.getOpposite());
+            if (iEnergyStorage != null)
+                iEnergyStorage.receiveEnergy(Integer.MAX_VALUE, false);
         }
         markForUpdate();
     }

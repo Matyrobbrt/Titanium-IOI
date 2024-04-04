@@ -13,15 +13,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public class EnergyItem extends BasicItem {
     private final int capacity;
@@ -86,30 +83,13 @@ public class EnergyItem extends BasicItem {
         return 0x00E93232;
     }
 
-    public LazyOptional<IEnergyStorage> getEnergyStorage(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.ENERGY, null);
+    public Optional<IEnergyStorage> getEnergyStorage(ItemStack stack) {
+        return Optional.ofNullable(stack.getCapability(Capabilities.EnergyStorage.ITEM, null));
     }
 
-    @Nullable
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new CapabilityProvider(new EnergyStorageItemStack(stack, capacity, input, output));
+    @Nullable // TODO - use
+    public IEnergyStorage initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+        return new EnergyStorageItemStack(stack, capacity, input, output);
     }
 
-    public static class CapabilityProvider implements ICapabilityProvider {
-        private LazyOptional<IEnergyStorage> energyCap;
-
-        public CapabilityProvider(EnergyStorageItemStack energy) {
-            this.energyCap = LazyOptional.of(() -> energy);
-        }
-
-        @Nonnull
-        @Override
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            if (cap == ForgeCapabilities.ENERGY) {
-                return energyCap.cast();
-            }
-            return LazyOptional.empty();
-        }
-    }
 }

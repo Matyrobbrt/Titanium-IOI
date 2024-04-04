@@ -8,10 +8,8 @@
 package com.hrznstudio.titanium.recipe.generator;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-
-import java.util.function.Consumer;
 
 public abstract class TitaniumRecipeProvider extends RecipeProvider {
 
@@ -20,11 +18,11 @@ public abstract class TitaniumRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> p_176532_) {
-        register(p_176532_);
+    protected void buildRecipes(RecipeOutput pRecipeOutput) {
+
     }
 
-    public abstract void register(Consumer<FinishedRecipe> consumer);
+    public abstract void register(RecipeOutput output);
 
 
 }

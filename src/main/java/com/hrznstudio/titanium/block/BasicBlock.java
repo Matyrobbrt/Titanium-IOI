@@ -17,7 +17,7 @@ import com.hrznstudio.titanium.tab.TitaniumTab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -112,7 +112,7 @@ public abstract class BasicBlock extends Block implements IRecipeProvider, IBloc
     }
 
     @Override
-    public void registerRecipe(Consumer<FinishedRecipe> consumer) {
+    public void registerRecipe(RecipeOutput output) {
 
     }
 

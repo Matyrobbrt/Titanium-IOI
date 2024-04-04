@@ -17,11 +17,10 @@ import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.container.addon.IContainerAddonProvider;
 import com.hrznstudio.titanium.container.addon.IntReferenceHolderAddon;
 import com.hrznstudio.titanium.container.referenceholder.FunctionReferenceHolder;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.energy.EnergyStorage;
-
 import javax.annotation.Nonnull;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.energy.EnergyStorage;
 import java.util.List;
 
 public class EnergyStorageComponent<T extends IComponentHarness> extends EnergyStorage implements

@@ -8,7 +8,7 @@
 package com.hrznstudio.titanium.fluid;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 
 public class ClientFluidTypeExtensions implements IClientFluidTypeExtensions {
 

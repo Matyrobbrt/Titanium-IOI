@@ -10,7 +10,6 @@ package com.hrznstudio.titanium.item;
 import com.hrznstudio.titanium.api.augment.IAugmentType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 

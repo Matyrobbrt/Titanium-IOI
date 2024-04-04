@@ -9,8 +9,7 @@ package com.hrznstudio.titanium.nbthandler.data;
 
 import com.hrznstudio.titanium.api.INBTHandler;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

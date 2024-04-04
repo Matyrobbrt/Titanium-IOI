@@ -10,8 +10,7 @@ package com.hrznstudio.titanium.nbthandler.data;
 
 import com.hrznstudio.titanium.api.INBTHandler;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.items.ItemStackHandler;
-
+import net.neoforged.neoforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
