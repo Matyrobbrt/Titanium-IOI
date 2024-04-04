@@ -9,6 +9,9 @@ package com.hrznstudio.titanium.module;
 
 import com.hrznstudio.titanium.block.BasicBlock;
 import com.hrznstudio.titanium.block.BasicTileBlock;
+import com.hrznstudio.titanium.block.tile.ActiveTile;
+import com.hrznstudio.titanium.block.tile.BasicTile;
+import com.hrznstudio.titanium.block.tile.PoweredTile;
 import com.hrznstudio.titanium.tab.TitaniumTab;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -19,7 +22,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,11 +41,13 @@ public class DeferredRegistryHelper {
     private final String modId;
     private final HashMap<ResourceKey<? extends Registry<?>>, DeferredRegister<?>> registries;
     private final CreativeTabHelper creativeTabHelper;
+    private final IEventBus bus;
 
     public DeferredRegistryHelper(String modId) {
         this.modId = modId;
         this.registries = new HashMap<>();
         this.creativeTabHelper = new CreativeTabHelper();
+        bus = ModList.get().getModContainerById(modId).orElseThrow().getEventBus();
     }
 
     public <T> DeferredRegister<T> addRegistry(ResourceKey<? extends Registry<T>> key) {
@@ -101,13 +110,46 @@ public class DeferredRegistryHelper {
         return block;
     }
 
-    public Pair<DeferredHolder<Block, Block>, DeferredHolder<BlockEntityType<?>, BlockEntityType<?>>> registerBlockWithTile(String name, Supplier<BasicTileBlock<?>> blockSupplier, @Nullable TitaniumTab tab){
-        DeferredHolder<Block, Block> blockRegistryObject = registerBlockWithItem(name, blockSupplier, tab);
-        return Pair.of(blockRegistryObject, registerBlockEntityType(name, () -> BlockEntityType.Builder.of(((BasicTileBlock<?>)blockRegistryObject.get()).getTileEntityFactory(), blockRegistryObject.get()).build(null)));
+    public void registerCapabilities(Holder<BlockEntityType<?>> type) {
+        bus.addListener((final RegisterCapabilitiesEvent event) -> {
+            event.registerBlockEntity(
+                Capabilities.EnergyStorage.BLOCK, type.value(), (object, context) -> {
+                    if (object instanceof PoweredTile<?> powered) {
+                        return powered.getEnergyStorage();
+                    }
+                    return null;
+                }
+            );
+            event.registerBlockEntity(
+                Capabilities.FluidHandler.BLOCK, type.value(), (object, context) -> {
+                    if (object instanceof ActiveTile<?> tile) {
+                        return tile.getFluidHandler(context);
+                    }
+                    return null;
+                }
+            );
+            event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK, type.value(), (object, context) -> {
+                    if (object instanceof ActiveTile<?> tile) {
+                        return tile.getItemHandler(context);
+                    }
+                    return null;
+                }
+            );
+        });
     }
 
-    public Pair<DeferredHolder<Block, Block>, DeferredHolder<BlockEntityType<?>, BlockEntityType<?>>> registerBlockWithTileItem(String name, Supplier<BasicTileBlock<?>> blockSupplier, Function<DeferredHolder<Block, Block>, Supplier<Item>> itemSupplier, @Nullable TitaniumTab tab){
+    public BlockWithTile registerBlockWithTile(String name, Supplier<BasicTileBlock<?>> blockSupplier, @Nullable TitaniumTab tab){
+        DeferredHolder<Block, Block> blockRegistryObject = registerBlockWithItem(name, blockSupplier, tab);
+        var type = registerBlockEntityType(name, () -> BlockEntityType.Builder.of(((BasicTileBlock<?>)blockRegistryObject.get()).getTileEntityFactory(), blockRegistryObject.get()).build(null));
+        registerCapabilities(type);
+        return new BlockWithTile(blockRegistryObject, type);
+    }
+
+    public BlockWithTile registerBlockWithTileItem(String name, Supplier<BasicTileBlock<?>> blockSupplier, Function<DeferredHolder<Block, Block>, Supplier<Item>> itemSupplier, @Nullable TitaniumTab tab){
         DeferredHolder<Block, Block> blockRegistryObject = registerBlockWithItem(name, blockSupplier, itemSupplier, tab);
-        return Pair.of(blockRegistryObject, registerBlockEntityType(name, () -> BlockEntityType.Builder.of(((BasicTileBlock<?>)blockRegistryObject.get()).getTileEntityFactory(), blockRegistryObject.get()).build(null)));
+        var type = registerBlockEntityType(name, () -> BlockEntityType.Builder.of(((BasicTileBlock<?>)blockRegistryObject.get()).getTileEntityFactory(), blockRegistryObject.get()).build(null));
+        registerCapabilities(type);
+        return new BlockWithTile(blockRegistryObject, type);
     }
 }

@@ -75,8 +75,6 @@ public class BasicContainerScreen<T extends AbstractContainerMenu> extends Abstr
     // drawGuiContainerBackgroundLayer
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        // renderBackground
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         // Width
         xCenter = (width - imageWidth) / 2;
         // Height

@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "particle": "titanium:blocks/creative/side_fe",
-    "north": "titanium:blocks/creative/side_fe",
-    "west": "titanium:blocks/creative/side_fe",
-    "east": "titanium:blocks/creative/side_fe",
-    "south": "titanium:blocks/creative/side_fe",
-    "up": "titanium:blocks/creative/top",
-    "down": "titanium:blocks/creative/bottom"
+    "particle": "titanium:block/creative/side_fe",
+    "north": "titanium:block/creative/side_fe",
+    "west": "titanium:block/creative/side_fe",
+    "east": "titanium:block/creative/side_fe",
+    "south": "titanium:block/creative/side_fe",
+    "up": "titanium:block/creative/top",
+    "down": "titanium:block/creative/bottom"
   }
 }

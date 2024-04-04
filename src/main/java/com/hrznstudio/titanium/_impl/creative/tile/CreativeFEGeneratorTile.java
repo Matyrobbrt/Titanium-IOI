@@ -17,7 +17,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
@@ -27,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class CreativeFEGeneratorTile extends PoweredTile<CreativeFEGeneratorTile> {
 
     public CreativeFEGeneratorTile(BlockPos pos, BlockState state) {
-        super((BasicTileBlock<CreativeFEGeneratorTile>) CreativeFEGeneratorBlock.INSTANCE.getLeft().get(),CreativeFEGeneratorBlock.INSTANCE.getRight().get(), pos, state);
+        super((BasicTileBlock<CreativeFEGeneratorTile>) CreativeFEGeneratorBlock.INSTANCE.getBlock(),CreativeFEGeneratorBlock.INSTANCE.type().get(), pos, state);
     }
 
     @Override

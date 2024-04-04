@@ -1,9 +1,9 @@
 {
 	"textures": {
 		"0": "blocks/oak_planks",
-		"1": "titanium:blocks/stone_slab_side",
-		"2": "titanium:blocks/stone_slab_top",
-		"particle": "titanium:blocks/stone_slab_top"
+		"1": "titanium:block/stone_slab_side",
+		"2": "titanium:block/stone_slab_top",
+		"particle": "titanium:block/stone_slab_top"
 	},
 	"elements": [
 		{

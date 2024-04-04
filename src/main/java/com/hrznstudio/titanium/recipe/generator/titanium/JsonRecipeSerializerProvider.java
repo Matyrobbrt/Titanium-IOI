@@ -23,6 +23,6 @@ public class JsonRecipeSerializerProvider extends TitaniumSerializableProvider {
 
     @Override
     public void add(Map<IJsonFile, IJSONGenerator> serializables) {
-        TestSerializableRecipe.RECIPES.forEach(testSerializableRecipe -> serializables.put(testSerializableRecipe, testSerializableRecipe));
+//        TestSerializableRecipe.RECIPES.forEach(testSerializableRecipe -> serializables.put(testSerializableRecipe, testSerializableRecipe));
     }
 }

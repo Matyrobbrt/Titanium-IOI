@@ -10,18 +10,16 @@ package com.hrznstudio.titanium._impl.test;
 import com.hrznstudio.titanium._impl.test.tile.TwentyFourTestTile;
 import com.hrznstudio.titanium.block.RotatableBlock;
 import com.hrznstudio.titanium.datagenerator.loot.block.BasicBlockLootTables;
-import net.minecraft.world.level.block.Block;
+import com.hrznstudio.titanium.module.BlockWithTile;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
 public class TwentyFourTestBlock extends RotatableBlock<TwentyFourTestTile> {
 
-    public static Pair<DeferredHolder<Block, Block>, DeferredHolder<BlockEntityType<?>, BlockEntityType<?>>> TEST;
+    public static BlockWithTile TEST;
 
     public TwentyFourTestBlock() {
         super("twenty_four_test", Properties.ofFullCopy(Blocks.STONE), TwentyFourTestTile.class);
