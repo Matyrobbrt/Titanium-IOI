@@ -13,12 +13,15 @@ import com.hrznstudio.titanium._impl.test.MachineTestBlock;
 import com.hrznstudio.titanium._impl.test.TestBlock;
 import com.hrznstudio.titanium._impl.test.TwentyFourTestBlock;
 import com.hrznstudio.titanium._impl.test.recipe.TestSerializableRecipe;
+import com.hrznstudio.titanium.attachment.StoredEnergyAttachment;
 import com.hrznstudio.titanium.block_network.NetworkManager;
 import com.hrznstudio.titanium.client.screen.container.BasicAddonScreen;
 import com.hrznstudio.titanium.command.RewardCommand;
 import com.hrznstudio.titanium.command.RewardGrantCommand;
 import com.hrznstudio.titanium.container.BasicAddonContainer;
 import com.hrznstudio.titanium.event.handler.EventManager;
+import com.hrznstudio.titanium.item.AugmentWrapper;
+import com.hrznstudio.titanium.item.EnergyItem;
 import com.hrznstudio.titanium.module.ModuleController;
 import com.hrznstudio.titanium.network.NetworkHandler;
 import com.hrznstudio.titanium.network.locator.LocatorTypes;
@@ -32,6 +35,7 @@ import com.hrznstudio.titanium.reward.RewardManager;
 import com.hrznstudio.titanium.reward.RewardSyncMessage;
 import com.hrznstudio.titanium.reward.storage.RewardWorldStorage;
 import com.hrznstudio.titanium.util.SidedHandler;
+import com.mojang.serialization.Codec;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -46,6 +50,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -57,6 +62,8 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Map;
+
 
 @Mod(Titanium.MODID)
 public class Titanium extends ModuleController {
@@ -66,9 +73,9 @@ public class Titanium extends ModuleController {
     public static NetworkHandler NETWORK = new NetworkHandler(MODID);
 
     public Titanium() {
-        NETWORK.registerMessage(ButtonClickNetworkMessage.class);
-        NETWORK.registerMessage(RewardSyncMessage.class);
-        NETWORK.registerMessage(TileFieldNetworkMessage.class);
+        NETWORK.registerMessage("button_click", ButtonClickNetworkMessage.class);
+        NETWORK.registerMessage("reward_sync", RewardSyncMessage.class);
+        NETWORK.registerMessage("tile_field", TileFieldNetworkMessage.class);
         SidedHandler.runOn(Dist.CLIENT, () -> () -> EventManager.mod(FMLClientSetupEvent.class).process(this::clientSetup).subscribe());
         EventManager.mod(FMLCommonSetupEvent.class).process(this::commonSetup).subscribe();
         EventManager.forge(PlayerEvent.PlayerLoggedInEvent.class).process(this::onPlayerLoggedIn).subscribe();
@@ -91,6 +98,14 @@ public class Titanium extends ModuleController {
     @Override
     protected void initModules() {
         BasicAddonContainer.TYPE = getRegistries().registerGeneric(Registries.MENU, "addon_container", () -> (MenuType) IMenuTypeExtension.create(BasicAddonContainer::create));
+        StoredEnergyAttachment.TYPE = getRegistries()
+            .registerTyped(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "stored_energy", () -> AttachmentType.builder(holder -> new StoredEnergyAttachment((EnergyItem) holder))
+                .serialize(StoredEnergyAttachment.CODEC)
+                .build());
+        AugmentWrapper.ATTACHMENT = getRegistries()
+            .registerTyped(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "augments", () -> AttachmentType.builder(() -> Map.<String, Float>of())
+                .serialize(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
+                .build());
         if (!FMLLoader.isProduction()) { //ENABLE IN DEV
             getRegistries().registerGeneric(Registries.RECIPE_SERIALIZER, "shapeless_enchant", () -> (RecipeSerializer<?>) new ShapelessEnchantSerializer());
             TestSerializableRecipe.SERIALIZER = getRegistries().registerGeneric(Registries.RECIPE_SERIALIZER, "test_serializer", () -> new GenericSerializer<>(TestSerializableRecipe.class, TestSerializableRecipe.RECIPE_TYPE::value, TestSerializableRecipe.CODEC));

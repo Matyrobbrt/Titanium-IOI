@@ -39,12 +39,7 @@ public class BlockRegistryObjectGroup<B extends Block, I extends Item, T extends
         this.name = name;
         this.blockCreator = blockCreator;
         this.itemCreator = itemCreator;
-        this.tileSupplier = new BlockEntityType.BlockEntitySupplier<T>() {
-            @Override
-            public T create(BlockPos p_155268_, BlockState p_155269_) {
-                return tileSupplier.get();
-            }
-        };
+        this.tileSupplier = (p_155268_, p_155269_) -> tileSupplier.get();
     }
 
     @Nonnull

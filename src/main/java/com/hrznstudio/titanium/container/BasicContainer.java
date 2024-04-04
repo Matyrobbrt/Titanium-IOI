@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class BasicContainer extends AbstractContainerMenu {
-    private IAssetProvider assetProvider;
+    private final IAssetProvider assetProvider;
 
     public BasicContainer(int id, Inventory inventory, FriendlyByteBuf buffer) {
         this(inventory.player.containerMenu.getType(), id);

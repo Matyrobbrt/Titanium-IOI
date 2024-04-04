@@ -8,78 +8,44 @@
 package com.hrznstudio.titanium.item;
 
 import com.hrznstudio.titanium.api.augment.IAugmentType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class AugmentWrapper {
 
-    public static HashMap<Integer, AugmentCache> STACK_AUGMENT_CACHE = new LinkedHashMap<>();
-
-    public static final String AUGMENT_NBT = "TitaniumAugment";
+    public static DeferredHolder<AttachmentType<?>, AttachmentType<Map<String, Float>>> ATTACHMENT;
 
     public static boolean isAugment(ItemStack augment) {
         if (!augment.isEmpty()) {
-            var hash = augment.hashCode();
-            if (STACK_AUGMENT_CACHE.containsKey(hash)) {
-                return true;
-            } else if (augment.hasTag() && augment.getTag().contains(AUGMENT_NBT)) {
-                STACK_AUGMENT_CACHE.put(hash, new AugmentCache(augment));
-                return true;
-            }
+            return augment.hasData(ATTACHMENT);
         }
         return false;
     }
 
-    public static AugmentCache getAugment(ItemStack augment) {
+    public static Map<String, Float> getAugment(ItemStack augment) {
         if (!augment.isEmpty()) {
-            var hash = augment.hashCode();
-            if (STACK_AUGMENT_CACHE.containsKey(hash)) {
-                return STACK_AUGMENT_CACHE.get(hash);
-            } else if (augment.hasTag() && augment.getTag().contains(AUGMENT_NBT)) {
-                return STACK_AUGMENT_CACHE.put(hash, new AugmentCache(augment));
-            }
+            return augment.getData(ATTACHMENT);
         }
-        return null;
+        return Map.of();
     }
 
     public static boolean hasType(ItemStack augment, IAugmentType type) {
         var augmentCache = getAugment(augment);
-        return augmentCache != null && augmentCache.hasAugment(type);
+        return augmentCache != null && augmentCache.containsKey(type.getType());
     }
 
     public static float getType(ItemStack augment, IAugmentType type) {
         var augmentCache = getAugment(augment);
-        return augmentCache != null ? augmentCache.getAugment(type) : 0f;
+        return augmentCache != null ? augmentCache.get(type.getType()) : 0f;
     }
 
     public static void setType(ItemStack augment, IAugmentType type, float amount) {
-        CompoundTag nbt = augment.getOrCreateTag();
-        CompoundTag augmentNBT = nbt.contains(AUGMENT_NBT) ? nbt.getCompound(AUGMENT_NBT) : new CompoundTag();
-        augmentNBT.putFloat(type.getType(), amount);
-        nbt.put(AUGMENT_NBT, augmentNBT);
-        augment.setTag(nbt);
-    }
-
-    private static class AugmentCache {
-
-        private HashMap<String, Float> augmentValues;
-
-        public AugmentCache(ItemStack stack) {
-            this.augmentValues = new LinkedHashMap<>();
-            var compound = stack.getTag().getCompound(AUGMENT_NBT);
-            for (String allKey : compound.getAllKeys()) {
-                this.augmentValues.put(allKey, compound.getFloat(allKey));
-            }
-        }
-
-        public boolean hasAugment(IAugmentType type) {
-            return this.augmentValues.containsKey(type.getType());
-        }
-
-        public float getAugment(IAugmentType type) {
-            return this.augmentValues.get(type.getType());
-        }
+        var newMap = new HashMap<>(augment.getData(ATTACHMENT));
+        newMap.put(type.getType(), amount);
+        augment.setData(ATTACHMENT, newMap);
     }
 }

@@ -23,8 +23,8 @@ import java.util.List;
 public class NBTManager {
 
     private static NBTManager ourInstance = new NBTManager();
-    private List<INBTHandler> handlerList;
-    private HashMap<Class<? extends BlockEntity>, List<Field>> tileFieldList;
+    private final List<INBTHandler> handlerList;
+    private final HashMap<Class<? extends BlockEntity>, List<Field>> tileFieldList;
 
     private NBTManager() {
         handlerList = new ArrayList<>();

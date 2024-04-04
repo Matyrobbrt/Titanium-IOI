@@ -35,7 +35,7 @@ public enum FilenameFilter implements java.io.FilenameFilter {
     ROADWORKS_STYLING("rstyle"),
     ROADWORKS_PLUGIN("plugin");
 
-    private String[] extensions;
+    private final String[] extensions;
 
     FilenameFilter(String... suffix) {
         this.extensions = suffix;

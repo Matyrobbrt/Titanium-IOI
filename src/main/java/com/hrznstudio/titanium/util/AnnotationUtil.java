@@ -20,8 +20,8 @@ import net.neoforged.neoforgespi.language.ModFileScanData;
 
 public class AnnotationUtil {
 
-    public static List<Class> getAnnotatedClasses(Class<? extends Annotation> annotation) {
-        List<Class> classList = new ArrayList<>();
+    public static List<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotation) {
+        List<Class<?>> classList = new ArrayList<>();
         Type type = Type.getType(annotation);
         for (ModFileScanData allScanDatum : ModList.get().getAllScanData()) {
             for (ModFileScanData.AnnotationData allScanDatumAnnotation : allScanDatum.getAnnotations()) {
@@ -37,8 +37,8 @@ public class AnnotationUtil {
         return classList;
     }
 
-    public static List<Class> getFilteredAnnotatedClasses(Class<? extends Annotation> annotation, String filter) {
-        List<Class> classList = new ArrayList<>();
+    public static List<Class<?>> getFilteredAnnotatedClasses(Class<? extends Annotation> annotation, String filter) {
+        List<Class<?>> classList = new ArrayList<>();
         Type type = Type.getType(annotation);
         for (ModFileScanData allScanDatum : ModList.get().getAllScanData()) {
             if (allScanDatum.getTargets().get(filter) == null) continue;

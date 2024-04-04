@@ -51,8 +51,9 @@ public class NetworkHandler {
         }
     }
 
-    public <REQ extends Message> void registerMessage(Class<REQ> message) {
-        final ResourceLocation id = new ResourceLocation(namespace, Integer.toString(i++));
+    public <REQ extends Message> void registerMessage(String name, Class<REQ> message) {
+        i++;
+        final ResourceLocation id = new ResourceLocation(namespace, name);
         ids.put(message, id);
         registrar.add(reg -> reg.play(
             id, buffer -> {

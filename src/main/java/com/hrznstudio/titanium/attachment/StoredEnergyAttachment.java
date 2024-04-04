@@ -21,8 +21,5 @@ public record StoredEnergyAttachment(int stored, int capacity, int in, int out) 
         ExtraCodecs.POSITIVE_INT.fieldOf("in").forGetter(StoredEnergyAttachment::in),
         ExtraCodecs.POSITIVE_INT.fieldOf("out").forGetter(StoredEnergyAttachment::out)
     ).apply(in, StoredEnergyAttachment::new));
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<StoredEnergyAttachment>> TYPE = new DeferredRegistryHelper(Titanium.MODID)
-        .registerTyped(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "stored_energy", () -> AttachmentType.builder(holder -> new StoredEnergyAttachment((EnergyItem) holder))
-            .serialize(CODEC)
-            .build());
+    public static DeferredHolder<AttachmentType<?>, AttachmentType<StoredEnergyAttachment>> TYPE;
 }

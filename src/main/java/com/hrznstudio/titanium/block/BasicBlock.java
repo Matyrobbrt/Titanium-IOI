@@ -141,6 +141,7 @@ public abstract class BasicBlock extends Block implements IRecipeProvider, IBloc
         return false;
     }
 
+    @Override
     public LootTable.Builder getLootTable(@Nonnull BasicBlockLootTables blockLootTables) {
         return blockLootTables.droppingSelf(this);
     }
