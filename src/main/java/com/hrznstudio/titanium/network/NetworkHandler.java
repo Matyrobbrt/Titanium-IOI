@@ -14,7 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,6 +35,12 @@ public class NetworkHandler {
     public NetworkHandler(String modid) {
         i = 0;
         namespace = modid;
+        ModList.get().getModContainerById(modid).orElseThrow()
+            .getEventBus().addListener((final RegisterPayloadHandlerEvent event) -> {
+                final var reg = event.registrar(modid)
+                    .versioned(String.valueOf(i));
+                registrar.forEach(c -> c.accept(reg));
+            });
     }
 
     public record MessageWrapper(ResourceLocation id, Message message) implements CustomPacketPayload {
