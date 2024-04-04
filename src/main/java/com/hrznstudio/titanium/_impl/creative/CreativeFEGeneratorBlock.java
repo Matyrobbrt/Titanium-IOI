@@ -21,7 +21,7 @@ public class CreativeFEGeneratorBlock extends BasicTileBlock<CreativeFEGenerator
     public static BlockWithTile INSTANCE;
 
     public CreativeFEGeneratorBlock() {
-        super("creative_fe_generator", Block.Properties.ofFullCopy(Blocks.BEDROCK), CreativeFEGeneratorTile.class);
+        super(Block.Properties.ofFullCopy(Blocks.BEDROCK), CreativeFEGeneratorTile.class);
     }
 
 

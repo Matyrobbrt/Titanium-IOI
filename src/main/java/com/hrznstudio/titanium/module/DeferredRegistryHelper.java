@@ -50,7 +50,7 @@ public class DeferredRegistryHelper {
 
     public <T> DeferredRegister<T> addRegistry(ResourceKey<? extends Registry<T>> key) {
         DeferredRegister<T> deferredRegister = DeferredRegister.create(key, this.modId);
-        deferredRegister.register(ModLoadingContext.get().getActiveContainer().getEventBus());
+        deferredRegister.register(bus);
         registries.put(key, deferredRegister);
         return deferredRegister;
     }
@@ -66,6 +66,10 @@ public class DeferredRegistryHelper {
 
     public <T> DeferredHolder<T, T> registerGeneric(ResourceKey<? extends Registry<T>> key, String name, Supplier<T> object) {
         return this.register(key, name, object);
+    }
+
+    public <T, R extends T> DeferredHolder<T, R> registerTyped(ResourceKey<? extends Registry<T>> key, String name, Supplier<R> object) {
+        return (DeferredHolder)this.register((ResourceKey)key, name, object);
     }
 
     public DeferredHolder<BlockEntityType<?>, BlockEntityType<?>> registerBlockEntityType(String name, Supplier<BlockEntityType<?>> object) {

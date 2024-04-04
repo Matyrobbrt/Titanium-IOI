@@ -34,8 +34,8 @@ public abstract class BasicTileBlock<T extends BasicTile<T>> extends BasicBlock 
 
     private final Class<T> tileClass;
 
-    public BasicTileBlock(String name, Properties properties, Class<T> tileClass) {
-        super(name, properties);
+    public BasicTileBlock(Properties properties, Class<T> tileClass) {
+        super(properties);
         this.tileClass = tileClass;
         NBTManager.getInstance().scanTileClassForAnnotations(tileClass);
     }

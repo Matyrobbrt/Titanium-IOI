@@ -87,9 +87,8 @@ public class EnergyItem extends BasicItem {
         return Optional.ofNullable(stack.getCapability(Capabilities.EnergyStorage.ITEM, null));
     }
 
-    @Nullable // TODO - use
-    public IEnergyStorage initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new EnergyStorageItemStack(stack, capacity, input, output);
+    public IEnergyStorage initEnergy(ItemStack stack) {
+        return new EnergyStorageItemStack(stack);
     }
 
 }

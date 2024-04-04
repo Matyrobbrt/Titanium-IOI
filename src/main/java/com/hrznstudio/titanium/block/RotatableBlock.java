@@ -25,7 +25,7 @@ public abstract class RotatableBlock<T extends BasicTile<T>> extends BasicTileBl
     public static final DirectionProperty FACING_HORIZONTAL = DirectionProperty.create("subfacing", Direction.Plane.HORIZONTAL);
 
     public RotatableBlock(String name, Properties properties, Class<T> tileClass) {
-        super(name, properties, tileClass);
+        super(properties, tileClass);
     }
 
     @Nonnull

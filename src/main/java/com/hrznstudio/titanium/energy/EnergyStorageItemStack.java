@@ -7,47 +7,19 @@
 
 package com.hrznstudio.titanium.energy;
 
-import net.minecraft.nbt.CompoundTag;
+import com.hrznstudio.titanium.attachment.StoredEnergyAttachment;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-// TODO - replace with attachment
 public class EnergyStorageItemStack implements IEnergyStorage {
-    private static final String ENERGY = "stored";
-    private static final String MAX = "max";
-    private static final String INPUT = "in";
-    private static final String OUTPUT = "out";
     private final ItemStack stack;
 
-    public EnergyStorageItemStack(ItemStack stack, int capacity, int in, int out) {
+    public EnergyStorageItemStack(ItemStack stack) {
         this.stack = stack;
-        boolean hasTags = stack.hasTag();
-        if (!hasTags || !stack.getTag().contains("energy")) {
-            if (!hasTags) {
-                stack.setTag(new CompoundTag());
-            }
-            CompoundTag tag = stack.getTag();
-            CompoundTag energyTag = new CompoundTag();
-            energyTag.putInt(ENERGY, 0);
-            energyTag.putInt(MAX, capacity);
-            energyTag.putInt(INPUT, in);
-            energyTag.putInt(OUTPUT, out);
-            tag.put("energy", energyTag);
-        } else {
-            CompoundTag energyTag = getStackEnergyTag();
-            energyTag.putInt(MAX, capacity);
-            energyTag.putInt(INPUT, in);
-            energyTag.putInt(OUTPUT, out);
-        }
     }
 
     public void putInternal(int energy) {
-        CompoundTag energyTag = getStackEnergyTag();
-        energyTag.putInt(ENERGY, Math.min(energyTag.getInt(ENERGY) + energy, energyTag.getInt(MAX)));
-    }
-
-    private CompoundTag getStackEnergyTag() {
-        return stack.getTagElement("energy");
+        save(new StoredEnergyAttachment(Math.min(getEnergyStored() + energy, getMaxEnergyStored()), getMaxEnergyStored(), getMaxReceive(), getMaxExtract()));
     }
 
     @Override
@@ -58,7 +30,7 @@ public class EnergyStorageItemStack implements IEnergyStorage {
 
         if (!simulate) {
             if (energyReceived != 0) {
-                getStackEnergyTag().putInt("energy", getEnergyStored() + energyReceived);
+                save(new StoredEnergyAttachment(getEnergyStored() + energyReceived, getMaxEnergyStored(), getMaxReceive(), getMaxExtract()));
             }
         }
         return energyReceived;
@@ -72,28 +44,28 @@ public class EnergyStorageItemStack implements IEnergyStorage {
 
         if (!simulate) {
             if (stack != null && energyExtracted != 0) {
-                getStackEnergyTag().putInt("energy", getEnergyStored() - energyExtracted);
+                save(new StoredEnergyAttachment(getEnergyStored() - energyExtracted, getMaxEnergyStored(), getMaxReceive(), getMaxExtract()));
             }
         }
         return energyExtracted;
     }
 
     public int getMaxExtract() {
-        return getStackEnergyTag().getInt(OUTPUT);
+        return get().out();
     }
 
     public int getMaxReceive() {
-        return getStackEnergyTag().getInt(INPUT);
+        return get().in();
     }
 
     @Override
     public int getEnergyStored() {
-        return getStackEnergyTag().getInt(ENERGY);
+        return get().stored();
     }
 
     @Override
     public int getMaxEnergyStored() {
-        return getStackEnergyTag().getInt(MAX);
+        return get().capacity();
     }
 
     @Override
@@ -104,5 +76,13 @@ public class EnergyStorageItemStack implements IEnergyStorage {
     @Override
     public boolean canReceive() {
         return getMaxReceive() > 0;
+    }
+
+    public void save(StoredEnergyAttachment attachment) {
+        stack.setData(StoredEnergyAttachment.TYPE, attachment);
+    }
+
+    public StoredEnergyAttachment get() {
+        return stack.getData(StoredEnergyAttachment.TYPE);
     }
 }

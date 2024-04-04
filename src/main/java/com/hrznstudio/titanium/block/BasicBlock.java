@@ -43,11 +43,9 @@ import java.util.function.Consumer;
 
 public abstract class BasicBlock extends Block implements IRecipeProvider, IBlockLootTableProvider {
     private TitaniumTab itemGroup = null;
-    private final String name;
 
-    public BasicBlock(String name, Properties properties) {
+    public BasicBlock(Properties properties) {
         super(properties);
-        this.name = name;
     }
 
     @Nullable
