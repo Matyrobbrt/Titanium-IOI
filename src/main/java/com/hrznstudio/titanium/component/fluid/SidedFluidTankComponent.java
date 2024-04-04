@@ -31,8 +31,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import java.awt.*;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidTankComponent<T> implements IFacingComponent, IScreenAddonProvider {
@@ -40,7 +42,7 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
     private int color;
     private int facingHandlerX = 8;
     private int facingHandlerY = 84;
-    private HashMap<FacingUtil.Sideness, FaceMode> facingModes;
+    private final Map<FacingUtil.Sideness, FaceMode> facingModes;
     private int pos;
     private boolean hasFacingAddon;
     private FaceMode[] validFaceModes;
@@ -48,7 +50,7 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
     public SidedFluidTankComponent(String name, int amount, int posX, int posY, int pos) {
         super(name, amount, posX, posY);
         this.color = DyeColor.WHITE.getFireworkColor();
-        this.facingModes = new HashMap<>();
+        this.facingModes = new EnumMap<>(FacingUtil.Sideness.class);
         this.pos = pos;
         for (FacingUtil.Sideness facing : FacingUtil.Sideness.values()) {
             this.facingModes.put(facing, FaceMode.ENABLED);
@@ -63,7 +65,7 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
     }
 
     @Override
-    public HashMap<FacingUtil.Sideness, FaceMode> getFacingModes() {
+    public Map<FacingUtil.Sideness, FaceMode> getFacingModes() {
         return facingModes;
     }
 
