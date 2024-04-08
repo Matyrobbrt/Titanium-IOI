@@ -9,7 +9,7 @@ plugins {
 final mcVersion = project.neo_version.split('\\.', 3).with {
     '1.' + it[0] + '.' + it[1]
 }
-version = mcVersion + "-" + mod_version
+version = mcVersion + "-" + api_version
 group = modGroup
 
 repositories {
@@ -82,4 +82,22 @@ jar {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+tasks.configureEach {
+  if (it.name.startsWith('neoForm')) it.enabled = false
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+    }
+  }
+  repositories {
+    maven {
+      name 'repo'
+      url(file('repo'))
+    }
+  }
 }

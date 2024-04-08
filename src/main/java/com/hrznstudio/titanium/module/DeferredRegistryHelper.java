@@ -56,12 +56,17 @@ public class DeferredRegistryHelper {
     }
 
     private  <T> DeferredHolder<T, T> register(ResourceKey<? extends Registry<T>> key, String name, Supplier<T> object) {
-        DeferredRegister<T> deferredRegister = (DeferredRegister<T>)(Object)registries.get(key);
+        DeferredRegister<T> deferredRegister = getRegistry(key);
+        return deferredRegister.register(name, object);
+    }
+
+    public <T> DeferredRegister<T> getRegistry(ResourceKey<? extends Registry<T>> key) {
+        DeferredRegister<T> deferredRegister = (DeferredRegister<T>)registries.get(key);
         if (deferredRegister == null) {
             this.addRegistry(key);
-            deferredRegister = (DeferredRegister<T>)(Object)registries.get(key);
+            deferredRegister = (DeferredRegister<T>)registries.get(key);
         }
-        return deferredRegister.register(name, object);
+        return deferredRegister;
     }
 
     public <T> DeferredHolder<T, T> registerGeneric(ResourceKey<? extends Registry<T>> key, String name, Supplier<T> object) {
