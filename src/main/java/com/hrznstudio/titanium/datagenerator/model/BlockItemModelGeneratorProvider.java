@@ -16,7 +16,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.util.NonNullLazy;
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -25,15 +24,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class BlockItemModelGeneratorProvider implements DataProvider {
 
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
     private final DataGenerator generator;
     private final String modid;
-    private final NonNullLazy<List<Block>> blocksToProcess;
+    private final Supplier<List<Block>> blocksToProcess;
 
-    public BlockItemModelGeneratorProvider(DataGenerator generator, String modid, NonNullLazy<List<Block>> blocksToProcess) {
+    public BlockItemModelGeneratorProvider(DataGenerator generator, String modid, Supplier<List<Block>> blocksToProcess) {
         this.generator = generator;
         this.modid = modid;
         this.blocksToProcess = blocksToProcess;

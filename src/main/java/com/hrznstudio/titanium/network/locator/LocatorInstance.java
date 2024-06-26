@@ -8,7 +8,7 @@
 package com.hrznstudio.titanium.network.locator;
 
 import com.hrznstudio.titanium.network.CompoundSerializableDataHandler;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
@@ -35,7 +35,7 @@ public abstract class LocatorInstance {
         return ContainerLevelAccess.NULL;
     }
 
-    public final void fromBytes(FriendlyByteBuf buf) {
+    public final void fromBytes(RegistryFriendlyByteBuf buf) {
         try {
             Class<?> clazz = getClass();
             for (Field f : clazz.getDeclaredFields()) {
@@ -49,7 +49,7 @@ public abstract class LocatorInstance {
         }
     }
 
-    public final void toBytes(FriendlyByteBuf buf) {
+    public final void toBytes(RegistryFriendlyByteBuf buf) {
         try {
             Class<?> clazz = getClass();
             for (Field f : clazz.getDeclaredFields()) {

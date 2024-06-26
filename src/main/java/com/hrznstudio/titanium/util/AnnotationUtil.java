@@ -40,15 +40,12 @@ public class AnnotationUtil {
     public static List<Class<?>> getFilteredAnnotatedClasses(Class<? extends Annotation> annotation, String filter) {
         List<Class<?>> classList = new ArrayList<>();
         Type type = Type.getType(annotation);
-        for (ModFileScanData allScanDatum : ModList.get().getAllScanData()) {
-            if (allScanDatum.getTargets().get(filter) == null) continue;
-            for (ModFileScanData.AnnotationData allScanDatumAnnotation : allScanDatum.getAnnotations()) {
-                if (Objects.equals(allScanDatumAnnotation.annotationType(), type)) {
-                    try {
-                        classList.add(Class.forName(allScanDatumAnnotation.memberName()));
-                    } catch (ClassNotFoundException e) {
-                        Titanium.LOGGER.error(e);
-                    }
+        for (ModFileScanData.AnnotationData allScanDatumAnnotation : ModList.get().getModFileById(filter).getFile().getScanResult().getAnnotations()) {
+            if (Objects.equals(allScanDatumAnnotation.annotationType(), type)) {
+                try {
+                    classList.add(Class.forName(allScanDatumAnnotation.memberName()));
+                } catch (ClassNotFoundException e) {
+                    Titanium.LOGGER.error(e);
                 }
             }
         }

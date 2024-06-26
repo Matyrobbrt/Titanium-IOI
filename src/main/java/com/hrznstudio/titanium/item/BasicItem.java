@@ -38,7 +38,7 @@ public class BasicItem extends Item {
     }
 
     @Override
-    public final void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         if (hasTooltipDetails(null)) {
             addTooltipDetails(null, stack, tooltip, flagIn.isAdvanced());

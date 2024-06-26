@@ -21,15 +21,15 @@ public class TankNBTHandler implements INBTHandler<FluidTank> {
     }
 
     @Override
-    public boolean storeToNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nonnull FluidTank object) {
-        compound.put(name, object.writeToNBT(new CompoundTag()));
+    public boolean storeToNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nonnull FluidTank object) {
+        compound.put(name, object.writeToNBT(provider, new CompoundTag()));
         return true;
     }
 
     @Override
-    public FluidTank readFromNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nullable FluidTank currentValue) {
+    public FluidTank readFromNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nullable FluidTank currentValue) {
         if (compound.contains(name)) {
-            currentValue.readFromNBT(compound.getCompound(name));
+            currentValue.readFromNBT(provider, compound.getCompound(name));
             return currentValue;
         }
         return currentValue;

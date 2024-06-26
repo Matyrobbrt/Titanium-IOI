@@ -48,11 +48,11 @@ public class TitaniumFluidInstance {
             }
         });
         this.bucketFluid = helper.registerGeneric(Registries.ITEM, fluid + "_bucket", () -> {
-            var item = new BucketItem(this.sourceFluid, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1));
+            var item = new BucketItem(this.sourceFluid.get(), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1));
             if (group != null) group.getTabList().add(item);
             return item;
         });
-        this.blockFluid = helper.registerGeneric(Registries.BLOCK, fluid, () -> new LiquidBlock(() -> (FlowingFluid) sourceFluid.get(), Block.Properties.of().mapColor(MapColor.WATER).replaceable().noCollission().strength(100.0F).pushReaction(PushReaction.DESTROY).noLootTable().liquid().sound(SoundType.EMPTY)));
+        this.blockFluid = helper.registerGeneric(Registries.BLOCK, fluid, () -> new LiquidBlock((FlowingFluid) sourceFluid.get(), Block.Properties.of().mapColor(MapColor.WATER).replaceable().noCollission().strength(100.0F).pushReaction(PushReaction.DESTROY).noLootTable().liquid().sound(SoundType.EMPTY)));
     }
 
     public DeferredHolder<FluidType, FluidType> getFluidType() {

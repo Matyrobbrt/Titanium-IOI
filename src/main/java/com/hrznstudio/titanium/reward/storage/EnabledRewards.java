@@ -7,6 +7,7 @@
 
 package com.hrznstudio.titanium.reward.storage;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -25,15 +26,15 @@ public class EnabledRewards implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
         enabled.forEach((resourceLocation, s) -> compoundNBT.putString(resourceLocation.toString(), s));
         return compoundNBT;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         enabled.clear();
-        nbt.getAllKeys().forEach(s -> enabled.put(new ResourceLocation(s), nbt.getString(s)));
+        nbt.getAllKeys().forEach(s -> enabled.put(ResourceLocation.parse(s), nbt.getString(s)));
     }
 }

@@ -10,6 +10,7 @@ package com.hrznstudio.titanium.config;
 import com.hrznstudio.titanium.annotation.config.ConfigFile;
 import com.hrznstudio.titanium.annotation.config.ConfigVal;
 import com.hrznstudio.titanium.util.AnnotationUtil;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.config.IConfigSpec;
 import net.neoforged.fml.config.ModConfig;
@@ -32,7 +33,7 @@ public class AnnotationConfigManager {
         specCaches = new ArrayList<>();
     }
 
-    public void add(Type type) {
+    public void add(ModContainer container, Type type) {
         configClasses.add(type);
         SpecCache specCache = new SpecCache();
         // SCANNING CLASSES
@@ -48,7 +49,7 @@ public class AnnotationConfigManager {
         String fileName = ModLoadingContext.get().getActiveContainer().getModId() + "/" + (type.fileName.isEmpty() ? ModLoadingContext.get().getActiveContainer().getModId() : type.fileName);
         if (!fileName.endsWith(".toml")) fileName = fileName + ".toml";
         specCache.spec = builder.build();
-        ModLoadingContext.get().registerConfig(type.type, specCache.spec, fileName);
+        container.registerConfig(type.type, specCache.spec, fileName);
         specCaches.add(specCache);
     }
 

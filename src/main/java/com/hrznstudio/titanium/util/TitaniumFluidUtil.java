@@ -22,7 +22,7 @@ public class TitaniumFluidUtil {
 
     @Nonnull
     public static FluidActionResult tryEmptyContainer(@Nonnull ItemStack container, IFluidHandler fluidDestination, int maxAmount, boolean doDrain) {
-        ItemStack containerCopy = ItemHandlerHelper.copyStackWithSize(container, 1);
+        ItemStack containerCopy = container.copyWithCount(1);
         return FluidUtil.getFluidHandler(containerCopy)
             .map(containerFluidHandler -> {
                 FluidStack transfer = FluidUtil.tryFluidTransfer(fluidDestination, containerFluidHandler, maxAmount, doDrain);

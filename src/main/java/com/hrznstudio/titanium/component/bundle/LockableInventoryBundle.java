@@ -23,8 +23,11 @@ import com.hrznstudio.titanium.component.inventory.SidedInventoryComponent;
 import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.util.LangUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -99,34 +102,34 @@ public class LockableInventoryBundle<T extends BasicTile & IComponentHarness> im
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
-        compoundNBT.put("Inventory", this.inventory.serializeNBT());
+        compoundNBT.put("Inventory", this.inventory.serializeNBT(provider));
         compoundNBT.putBoolean("Locked", this.isLocked);
         ListTag nbt = new ListTag();
         for (ItemStack stack : this.filter) {
-            nbt.add(stack.save(new CompoundTag()));
+            nbt.add(stack.save(provider, new CompoundTag()));
         }
         compoundNBT.put("Filter", nbt);
         return compoundNBT;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        this.inventory.deserializeNBT(nbt.getCompound("Inventory"));
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        this.inventory.deserializeNBT(provider, nbt.getCompound("Inventory"));
         this.isLocked = nbt.getBoolean("Locked");
         ListTag list = (ListTag) nbt.get("Filter");
         this.filter = new ItemStack[list.size()];
         Arrays.fill(this.filter, ItemStack.EMPTY);
         for (int i = 0; i < list.size(); i++) {
-            this.filter[i] = ItemStack.of(list.getCompound(i));
+            this.filter[i] = ItemStack.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, provider), list.getCompound(i)).getOrThrow().getFirst();
         }
         updateFilter();
     }
 
     private void updateFilter(){
         if (isLocked){
-            this.inventory.setInputFilter((stack, integer) -> integer < this.filter.length && !this.filter[integer].isEmpty() && ItemStack.isSameItemSameTags(this.filter[integer], (stack)));
+            this.inventory.setInputFilter((stack, integer) -> integer < this.filter.length && !this.filter[integer].isEmpty() && ItemStack.isSameItemSameComponents(this.filter[integer], (stack)));
         } else {
             Arrays.fill(this.filter, ItemStack.EMPTY);
             this.inventory.setInputFilter(this.cachedFilter);

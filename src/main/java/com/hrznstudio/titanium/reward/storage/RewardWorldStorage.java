@@ -7,6 +7,7 @@
 
 package com.hrznstudio.titanium.reward.storage;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class RewardWorldStorage extends SavedData {
-    public static final SavedData.Factory<RewardWorldStorage> FACTORY = new Factory<>(RewardWorldStorage::new, compoundTag -> new RewardWorldStorage().load(compoundTag));
+    public static final SavedData.Factory<RewardWorldStorage> FACTORY = new Factory<>(RewardWorldStorage::new, (compoundTag, prov) -> new RewardWorldStorage().load(compoundTag, prov));
     public static String NAME = "TitaniumReward";
     private HashMap<UUID, EnabledRewards> rewards;
     private List<ResourceLocation> freeRewards;
@@ -55,17 +56,17 @@ public class RewardWorldStorage extends SavedData {
     }
 
 
-    public RewardWorldStorage load(CompoundTag nbt) {
+    public RewardWorldStorage load(CompoundTag nbt, HolderLookup.Provider provider) {
         CompoundTag compoundNBT = nbt.getCompound(NAME);
         rewards.clear();
         compoundNBT.getAllKeys().forEach(s -> {
             EnabledRewards rewards = new EnabledRewards();
-            rewards.deserializeNBT(compoundNBT.getCompound(s));
+            rewards.deserializeNBT(provider, compoundNBT.getCompound(s));
             this.rewards.put(UUID.fromString(s), rewards);
         });
         freeRewards.clear();
         CompoundTag free = nbt.getCompound("FreeRewards");
-        free.getAllKeys().forEach(s -> freeRewards.add(new ResourceLocation(s)));
+        free.getAllKeys().forEach(s -> freeRewards.add(ResourceLocation.parse(s)));
         configuredPlayers.clear();
         CompoundTag configured = nbt.getCompound("ConfiguredPlayers");
         configured.getAllKeys().forEach(s -> configuredPlayers.add(UUID.fromString(s)));
@@ -73,9 +74,9 @@ public class RewardWorldStorage extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag compound) {
+    public CompoundTag save(CompoundTag compound, HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
-        rewards.forEach((uuid, enabledRewards) -> compoundNBT.put(uuid.toString(), enabledRewards.serializeNBT()));
+        rewards.forEach((uuid, enabledRewards) -> compoundNBT.put(uuid.toString(), enabledRewards.serializeNBT(provider)));
         compound.put(NAME, compoundNBT);
         CompoundTag free = new CompoundTag();
         freeRewards.forEach(resourceLocation -> free.putBoolean(resourceLocation.toString(), true));
@@ -86,9 +87,9 @@ public class RewardWorldStorage extends SavedData {
         return compound;
     }
 
-    public CompoundTag serializeSimple() {
+    public CompoundTag serializeSimple(HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
-        rewards.forEach((uuid, enabledRewards) -> compoundNBT.put(uuid.toString(), enabledRewards.serializeNBT()));
+        rewards.forEach((uuid, enabledRewards) -> compoundNBT.put(uuid.toString(), enabledRewards.serializeNBT(provider)));
         return compoundNBT;
     }
 }

@@ -7,9 +7,10 @@
 
 package com.hrznstudio.titanium.datagenerator.loot.block;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -17,20 +18,21 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.common.util.NonNullLazy;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class BasicBlockLootTables extends BlockLootSubProvider {
-    private final NonNullLazy<List<Block>> blocksToProcess;
+    private final Supplier<List<Block>> blocksToProcess;
 
-    public BasicBlockLootTables(NonNullLazy<List<Block>> blocksToProcess) {
-        super(new HashSet<>(), FeatureFlags.REGISTRY.allFlags());
+    public BasicBlockLootTables(Supplier<List<Block>> blocksToProcess, HolderLookup.Provider provider) {
+        super(new HashSet<>(), FeatureFlags.REGISTRY.allFlags(), provider);
         this.blocksToProcess = blocksToProcess;
     }
 
@@ -46,13 +48,6 @@ public class BasicBlockLootTables extends BlockLootSubProvider {
                 .add(LootItem.lootTableItem(itemProvider))));
     }
 
-    public LootTable.Builder droppingSelfWithNbt(ItemLike itemProvider, CopyNbtFunction.Builder nbtBuilder) {
-        return LootTable.lootTable()
-            .withPool(applyExplosionCondition(itemProvider, LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(itemProvider).apply(nbtBuilder))));
-    }
-
     @Override
     protected void generate() {
         blocksToProcess.get()
@@ -64,13 +59,13 @@ public class BasicBlockLootTables extends BlockLootSubProvider {
     }
 
     @Override
-    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> p_249322_) {
+    public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> p_249322_) {
         this.generate();
-        Set<ResourceLocation> set = new HashSet<>();
+        Set<ResourceKey<LootTable>> set = new HashSet<>();
 
         for(Block block : getKnownBlocks()) {
             if (block.isEnabled(this.enabledFeatures)) {
-                ResourceLocation resourcelocation = block.getLootTable();
+                var resourcelocation = block.getLootTable();
                 if (resourcelocation != BuiltInLootTables.EMPTY && set.add(resourcelocation)) {
                     LootTable.Builder loottable$builder = this.map.remove(resourcelocation);
                     if (loottable$builder == null) {

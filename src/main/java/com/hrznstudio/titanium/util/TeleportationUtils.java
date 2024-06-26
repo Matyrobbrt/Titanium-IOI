@@ -13,13 +13,11 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.ITeleporter;
 import org.joml.Vector3f;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class TeleportationUtils {
 
@@ -45,24 +43,14 @@ public class TeleportationUtils {
                 Vec3 destination = new Vec3(target.x() + 0.5, target.y(), target.z() + 0.5);
                 //Note: We grab the passengers here instead of in placeEntity as changeDimension starts by removing any passengers
                 List<Entity> passengers = entity.getPassengers();
-                return entity.changeDimension(newWorld, new ITeleporter() {
-                    @Override
-                    public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                        Entity repositionedEntity = repositionEntity.apply(false);
-                        if (repositionedEntity != null) {
-                            //Teleport all passengers to the other dimension and then make them start riding the entity again
-                            for (Entity passenger : passengers) {
-                                teleportPassenger(destWorld, repositionedEntity, passenger);
-                            }
-                        }
-                        return repositionedEntity;
-                    }
-
-                    @Override
-                    public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo) {
-                        return new PortalInfo(destination, entity.getDeltaMovement(), yaw, pitch);
+                var transition = new DimensionTransition(
+                    newWorld, destination, entity.getDeltaMovement(), entity.getYRot(), entity.getXRot(), et -> {
+                    //Teleport all passengers to the other dimension and then make them start riding the entity again
+                    for (Entity passenger : passengers) {
+                        teleportPassenger(newWorld, et, passenger);
                     }
                 });
+                return entity.changeDimension(transition);
             }
         }
         return null;
@@ -71,21 +59,15 @@ public class TeleportationUtils {
     private static void teleportPassenger(ServerLevel destWorld, Entity repositionedEntity, Entity passenger) {
         //Note: We grab the passengers here instead of in placeEntity as changeDimension starts by removing any passengers
         List<Entity> passengers = passenger.getPassengers();
-        passenger.changeDimension(destWorld, new ITeleporter() {
-            @Override
-            public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
-                Entity repositionedPassenger = repositionEntity.apply(false);
-                if (repositionedPassenger != null) {
-                    //Force our passenger to start riding the new entity again
-                    repositionedPassenger.startRiding(repositionedEntity, true);
-                    //Teleport "nested" passengers
-                    for (Entity passenger : passengers) {
-                        teleportPassenger(destWorld, repositionedPassenger, passenger);
-                    }
-                }
-                return repositionedPassenger;
+        passenger.changeDimension(new DimensionTransition(
+            destWorld, repositionedEntity.position(), passenger.getDeltaMovement(), passenger.getYRot(), passenger.getXRot(), et -> {
+            //Force our passenger to start riding the new entity again
+            repositionedEntity.startRiding(repositionedEntity, true);
+            //Teleport "nested" passengers
+            for (Entity pas : passengers) {
+                teleportPassenger(destWorld, et, pas);
             }
-        });
+        }));
     }
 
 

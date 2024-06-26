@@ -19,6 +19,7 @@ import com.hrznstudio.titanium.component.sideness.SidedComponentManager;
 import com.hrznstudio.titanium.util.FacingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -162,8 +163,8 @@ public class SidedInventoryComponent<T extends IComponentHarness> extends Invent
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag nbt = super.serializeNBT();
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag nbt = super.serializeNBT(provider);
         CompoundTag compound = new CompoundTag();
         for (FacingUtil.Sideness facing : facingModes.keySet()) {
             compound.putString(facing.name(), facingModes.get(facing).name());
@@ -173,8 +174,8 @@ public class SidedInventoryComponent<T extends IComponentHarness> extends Invent
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        super.deserializeNBT(provider, nbt);
         if (nbt.contains("FacingModes")) {
             CompoundTag compound = nbt.getCompound("FacingModes");
             for (String face : compound.getAllKeys()) {
@@ -217,7 +218,7 @@ public class SidedInventoryComponent<T extends IComponentHarness> extends Invent
         for (int i = 0; i < dest.getSlots(); i++) {
             if (!dest.isItemValid(i, stack)) continue;
             if (dest.getStackInSlot(i).isEmpty()) return i;
-            if (ItemHandlerHelper.canItemStacksStack(dest.getStackInSlot(i), stack) && dest.getStackInSlot(i).getCount() < dest.getSlotLimit(i)) {
+            if (ItemStack.isSameItemSameComponents(dest.getStackInSlot(i), stack) && dest.getStackInSlot(i).getCount() < dest.getSlotLimit(i)) {
                 return i;
             }
         }

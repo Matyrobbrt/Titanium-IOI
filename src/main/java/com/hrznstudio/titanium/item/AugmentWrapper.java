@@ -8,6 +8,7 @@
 package com.hrznstudio.titanium.item;
 
 import com.hrznstudio.titanium.api.augment.IAugmentType;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -17,18 +18,18 @@ import java.util.Map;
 
 public class AugmentWrapper {
 
-    public static DeferredHolder<AttachmentType<?>, AttachmentType<Map<String, Float>>> ATTACHMENT;
+    public static DeferredHolder<DataComponentType<?>, DataComponentType<Map<String, Float>>> ATTACHMENT;
 
     public static boolean isAugment(ItemStack augment) {
         if (!augment.isEmpty()) {
-            return augment.hasData(ATTACHMENT);
+            return augment.has(ATTACHMENT);
         }
         return false;
     }
 
     public static Map<String, Float> getAugment(ItemStack augment) {
         if (!augment.isEmpty()) {
-            return augment.getData(ATTACHMENT);
+            return augment.getOrDefault(ATTACHMENT, Map.of());
         }
         return Map.of();
     }
@@ -44,8 +45,8 @@ public class AugmentWrapper {
     }
 
     public static void setType(ItemStack augment, IAugmentType type, float amount) {
-        var newMap = new HashMap<>(augment.getData(ATTACHMENT));
+        var newMap = new HashMap<>(getAugment(augment));
         newMap.put(type.getType(), amount);
-        augment.setData(ATTACHMENT, newMap);
+        augment.set(ATTACHMENT, newMap);
     }
 }

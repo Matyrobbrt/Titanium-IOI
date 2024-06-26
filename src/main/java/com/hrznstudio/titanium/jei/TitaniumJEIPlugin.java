@@ -22,7 +22,7 @@ public class TitaniumJEIPlugin implements IModPlugin {
     @Override
     @Nonnull
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(Titanium.MODID, "default");
+        return ResourceLocation.fromNamespaceAndPath(Titanium.MODID, "default");
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.hrznstudio.titanium.component.sideness.SidedComponentManager;
 import com.hrznstudio.titanium.util.FacingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -161,19 +162,19 @@ public class SidedFluidTankComponent<T extends IComponentHarness> extends FluidT
     }
 
     @Override
-    public FluidTank readFromNBT(CompoundTag nbt) {
+    public FluidTank readFromNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         if (nbt.contains("FacingModes")) {
             CompoundTag compound = nbt.getCompound("FacingModes");
             for (String face : compound.getAllKeys()) {
                 facingModes.put(FacingUtil.Sideness.valueOf(face), FaceMode.valueOf(compound.getString(face)));
             }
         }
-        return super.readFromNBT(nbt);
+        return super.readFromNBT(provider, nbt);
     }
 
     @Override
-    public CompoundTag writeToNBT(CompoundTag comp) {
-        CompoundTag nbt = super.writeToNBT(comp);
+    public CompoundTag writeToNBT(HolderLookup.Provider provider, CompoundTag comp) {
+        CompoundTag nbt = super.writeToNBT(provider, comp);
         CompoundTag compound = new CompoundTag();
         for (FacingUtil.Sideness facing : facingModes.keySet()) {
             compound.putString(facing.name(), facingModes.get(facing).name());

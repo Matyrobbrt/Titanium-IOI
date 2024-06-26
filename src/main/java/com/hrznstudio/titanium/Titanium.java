@@ -29,7 +29,6 @@ import com.hrznstudio.titanium.network.messages.ButtonClickNetworkMessage;
 import com.hrznstudio.titanium.network.messages.TileFieldNetworkMessage;
 import com.hrznstudio.titanium.recipe.condition.ContentExistsCondition;
 import com.hrznstudio.titanium.recipe.serializer.GenericSerializer;
-import com.hrznstudio.titanium.recipe.shapelessenchant.ShapelessEnchantSerializer;
 import com.hrznstudio.titanium.reward.Reward;
 import com.hrznstudio.titanium.reward.RewardManager;
 import com.hrznstudio.titanium.reward.RewardSyncMessage;
@@ -37,11 +36,11 @@ import com.hrznstudio.titanium.reward.storage.RewardWorldStorage;
 import com.hrznstudio.titanium.util.SidedHandler;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -54,9 +53,9 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
@@ -99,17 +98,16 @@ public class Titanium extends ModuleController {
     protected void initModules() {
         BasicAddonContainer.TYPE = getRegistries().registerGeneric(Registries.MENU, "addon_container", () -> (MenuType) IMenuTypeExtension.create(BasicAddonContainer::create));
         StoredEnergyAttachment.TYPE = getRegistries()
-            .registerTyped(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "stored_energy", () -> AttachmentType.builder(holder -> new StoredEnergyAttachment((EnergyItem) holder))
-                .serialize(StoredEnergyAttachment.CODEC)
+            .registerTyped(Registries.DATA_COMPONENT_TYPE, "stored_energy", () -> DataComponentType.<StoredEnergyAttachment>builder()
+                .persistent(StoredEnergyAttachment.CODEC)
                 .build());
         AugmentWrapper.ATTACHMENT = getRegistries()
-            .registerTyped(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, "augments", () -> AttachmentType.builder(() -> Map.<String, Float>of())
-                .serialize(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
+            .registerTyped(Registries.DATA_COMPONENT_TYPE, "augments", () -> DataComponentType.<Map<String, Float>>builder()
+                .persistent(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
                 .build());
         if (!FMLLoader.isProduction()) { //ENABLE IN DEV
-            getRegistries().registerGeneric(Registries.RECIPE_SERIALIZER, "shapeless_enchant", () -> (RecipeSerializer<?>) new ShapelessEnchantSerializer());
             TestSerializableRecipe.SERIALIZER = getRegistries().registerGeneric(Registries.RECIPE_SERIALIZER, "test_serializer", () -> new GenericSerializer<>(TestSerializableRecipe.class, TestSerializableRecipe.RECIPE_TYPE::value, TestSerializableRecipe.CODEC));
-            TestSerializableRecipe.RECIPE_TYPE = getRegistries().registerGeneric(Registries.RECIPE_TYPE, "test_recipe_type", () -> RecipeType.simple(new ResourceLocation(MODID, "test_recipe_type")));
+            TestSerializableRecipe.RECIPE_TYPE = getRegistries().registerGeneric(Registries.RECIPE_TYPE, "test_recipe_type", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(MODID, "test_recipe_type")));
             TestBlock.TEST = getRegistries().registerBlockWithTile("block_test", () -> (TestBlock) new TestBlock(), null);
             TwentyFourTestBlock.TEST = getRegistries().registerBlockWithTile("block_twenty_four_test", () -> (TwentyFourTestBlock) new TwentyFourTestBlock(), null);
             AssetTestBlock.TEST = getRegistries().registerBlockWithTile("block_asset_test", () -> (AssetTestBlock) new AssetTestBlock(), null);
@@ -125,10 +123,10 @@ public class Titanium extends ModuleController {
     private void commonSetup(FMLCommonSetupEvent event) {
         RewardManager.get().getRewards().values().forEach(rewardGiver -> rewardGiver.getRewards().forEach(reward -> reward.register(Dist.DEDICATED_SERVER)));
         LocatorTypes.register();
-        EventManager.forge(TickEvent.LevelTickEvent.class)
-            .filter(worldTickEvent -> !worldTickEvent.level.isClientSide && worldTickEvent.phase == TickEvent.Phase.END)
+        EventManager.forge(LevelTickEvent.Post.class)
+            .filter(worldTickEvent -> !worldTickEvent.getLevel().isClientSide)
             .process(worldTickEvent -> {
-                NetworkManager.get(worldTickEvent.level).getNetworks().forEach(network -> network.update(worldTickEvent.level));
+                NetworkManager.get(worldTickEvent.getLevel()).getNetworks().forEach(network -> network.update(worldTickEvent.getLevel()));
             }).subscribe();
     }
 
@@ -137,7 +135,6 @@ public class Titanium extends ModuleController {
         EventManager.forge(RenderHighlightEvent.Block.class).process(TitaniumClient::blockOverlayEvent).subscribe();
         TitaniumClient.registerModelLoader();
         RewardManager.get().getRewards().values().forEach(rewardGiver -> rewardGiver.getRewards().forEach(reward -> reward.register(Dist.CLIENT)));
-        MenuScreens.register((MenuType<? extends BasicAddonContainer>) BasicAddonContainer.TYPE.get(), BasicAddonScreen::new);
     }
 
     private void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
@@ -151,7 +148,7 @@ public class Titanium extends ModuleController {
                 storage.getConfiguredPlayers().add(event.getEntity().getUUID());
                 storage.setDirty();
             }
-            CompoundTag nbt = storage.serializeSimple();
+            CompoundTag nbt = storage.serializeSimple(event.getEntity().level().registryAccess());
             event.getEntity().getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> Titanium.NETWORK.sendTo(new RewardSyncMessage(nbt), serverPlayerEntity));
         });
     }

@@ -13,6 +13,7 @@ import com.hrznstudio.titanium.block_network.element.NetworkElementRegistry;
 import com.hrznstudio.titanium.block_network.graph.NetworkGraphScannerResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -42,7 +43,7 @@ public class NetworkManager extends SavedData {
     }
 
     public static NetworkManager get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new Factory<>(() -> new NetworkManager(level), (tag) -> {
+        return level.getDataStorage().computeIfAbsent(new Factory<>(() -> new NetworkManager(level), (tag, provider) -> {
             NetworkManager networkManager = new NetworkManager(level);
             networkManager.load(tag);
             return networkManager;
@@ -255,7 +256,7 @@ public class NetworkManager extends SavedData {
             CompoundTag elementTagCompound = (CompoundTag) elementTag;
 
 
-            ResourceLocation factoryId = new ResourceLocation(elementTagCompound.getString("id"));
+            ResourceLocation factoryId = ResourceLocation.parse(elementTagCompound.getString("id"));
 
             NetworkElementFactory factory = NetworkElementRegistry.INSTANCE.getFactory(factoryId);
             if (factory == null) {
@@ -276,7 +277,7 @@ public class NetworkManager extends SavedData {
                 continue;
             }
 
-            ResourceLocation type = new ResourceLocation(netTagCompound.getString("type"));
+            ResourceLocation type = ResourceLocation.parse(netTagCompound.getString("type"));
 
             NetworkFactory factory = NetworkRegistry.INSTANCE.getFactory(type);
             if (factory == null) {
@@ -294,7 +295,7 @@ public class NetworkManager extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider) {
         ListTag elements = new ListTag();
         this.elements.values().forEach(p -> {
             CompoundTag elementTag = new CompoundTag();

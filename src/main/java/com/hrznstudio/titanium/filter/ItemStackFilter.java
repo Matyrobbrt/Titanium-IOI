@@ -13,6 +13,7 @@ import com.hrznstudio.titanium.api.filter.FilterAction;
 import com.hrznstudio.titanium.api.filter.FilterSlot;
 import com.hrznstudio.titanium.api.filter.IFilter;
 import com.hrznstudio.titanium.client.screen.addon.ItemstackFilterScreenAddon;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -100,13 +101,13 @@ public class ItemStackFilter implements IFilter<ItemStack> {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
         compoundNBT.putInt("Pointer", pointer);
         CompoundTag filter = new CompoundTag();
         for (FilterSlot<ItemStack> itemStackFilterSlot : this.filter) {
             if (itemStackFilterSlot != null && !itemStackFilterSlot.getFilter().isEmpty())
-                filter.put(itemStackFilterSlot.getFilterID() + "", itemStackFilterSlot.getFilter().save(new CompoundTag()));
+                filter.put(itemStackFilterSlot.getFilterID() + "", itemStackFilterSlot.getFilter().save(provider, new CompoundTag()));
         }
         compoundNBT.put("Filter", filter);
         compoundNBT.putString("Type", type.name());
@@ -114,14 +115,14 @@ public class ItemStackFilter implements IFilter<ItemStack> {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         pointer = nbt.getInt("Pointer");
         CompoundTag filter = nbt.getCompound("Filter");
         for (FilterSlot<ItemStack> filterSlot : this.filter) {
             filterSlot.setFilter(ItemStack.EMPTY);
         }
         for (String key : filter.getAllKeys()) {
-            this.filter[Integer.parseInt(key)].setFilter(ItemStack.of(filter.getCompound(key)));
+            this.filter[Integer.parseInt(key)].setFilter(ItemStack.parseOptional(provider, filter.getCompound(key)));
         }
         this.type = Type.valueOf(nbt.getString("Type"));
     }

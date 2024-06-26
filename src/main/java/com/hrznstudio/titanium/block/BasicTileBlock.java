@@ -15,7 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -48,15 +50,19 @@ public abstract class BasicTileBlock<T extends BasicTile<T>> extends BasicBlock 
         getTile(worldIn, pos).ifPresent(tile -> tile.onNeighborChanged(blockIn, fromPos));
     }
 
-
     @Override
-    @SuppressWarnings("deprecation")
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand hand, BlockHitResult ray) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand hand, BlockHitResult ray) {
         return getTile(worldIn, pos)
-            .map(tile -> tile.onActivated(player, hand, ray.getDirection(), ray.getLocation().x, ray.getLocation().y, ray.getLocation().z))
-            .orElseGet(() -> super.use(state, worldIn, pos, player, hand, ray));
+            .map(tile -> tile.onActivated(player, InteractionHand.MAIN_HAND, ray.getDirection(), ray.getLocation().x, ray.getLocation().y, ray.getLocation().z))
+            .orElseGet(() -> super.useItemOn(stack, state, worldIn, pos, player, hand, ray));
     }
 
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player, BlockHitResult ray) {
+        return getTile(worldIn, pos)
+            .map(tile -> tile.onActivated(player, InteractionHand.MAIN_HAND, ray.getDirection(), ray.getLocation().x, ray.getLocation().y, ray.getLocation().z).result())
+            .orElseGet(() -> super.useWithoutItem(state, worldIn, pos, player, ray));
+    }
 
     public Optional<T> getTile(BlockGetter access, BlockPos pos) {
         return TileUtil.getTileEntity(access, pos, tileClass);

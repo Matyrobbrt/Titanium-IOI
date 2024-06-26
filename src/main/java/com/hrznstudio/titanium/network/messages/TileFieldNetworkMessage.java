@@ -9,12 +9,10 @@ package com.hrznstudio.titanium.network.messages;
 
 import com.hrznstudio.titanium.block.tile.BasicTile;
 import com.hrznstudio.titanium.network.Message;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class TileFieldNetworkMessage extends Message {
 
@@ -30,12 +28,10 @@ public class TileFieldNetworkMessage extends Message {
     }
 
     @Override
-    protected void handleMessage(PlayPayloadContext context) {
-        context.workHandler().submitAsync(() -> {
-            BlockEntity entity = Minecraft.getInstance().player.getCommandSenderWorld().getBlockEntity(pos);
-            if (entity instanceof BasicTile){
-                ((BasicTile<?>) entity).handleSyncObject(data);
-            }
-        });
+    protected void handleMessage(IPayloadContext context) {
+        BlockEntity entity = context.player().getCommandSenderWorld().getBlockEntity(pos);
+        if (entity instanceof BasicTile){
+            ((BasicTile<?>) entity).handleSyncObject(data);
+        }
     }
 }

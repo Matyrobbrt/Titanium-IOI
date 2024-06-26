@@ -22,6 +22,7 @@ import com.hrznstudio.titanium.network.locator.LocatorInstance;
 import com.hrznstudio.titanium.network.locator.instance.EmptyLocatorInstance;
 import com.hrznstudio.titanium.network.locator.instance.InventoryStackLocatorInstance;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
@@ -93,7 +94,7 @@ public class BasicAddonContainer extends BasicInventoryContainer implements IObj
         super.clicked(slotId, dragType, clickTypeIn, player);
     }
 
-    public static BasicAddonContainer create(int id, Inventory inventory, FriendlyByteBuf packetBuffer) {
+    public static BasicAddonContainer create(int id, Inventory inventory, RegistryFriendlyByteBuf packetBuffer) {
         LocatorInstance instance = LocatorFactory.readPacketBuffer(packetBuffer);
         if (instance != null) {
             Player playerEntity = inventory.player;

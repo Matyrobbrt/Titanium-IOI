@@ -36,7 +36,7 @@ public class IntegerNBTHandler implements INBTHandler<Integer> {
      * @return true if the Object was successfully stored in the NBT
      */
     @Override
-    public boolean storeToNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nonnull Integer object) {
+    public boolean storeToNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nonnull Integer object) {
         compound.putInt(name, object);
         return true;
     }
@@ -49,7 +49,7 @@ public class IntegerNBTHandler implements INBTHandler<Integer> {
      * @return The object if it was successfully stored or null if it wasn't giving the next handlers a chance to store the value.
      */
     @Override
-    public Integer readFromNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nullable Integer current) {
+    public Integer readFromNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nullable Integer current) {
         return compound.contains(name) ? compound.getInt(name) : Unboxing.safelyUnbox(current);
     }
 }

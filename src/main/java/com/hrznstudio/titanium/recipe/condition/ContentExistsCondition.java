@@ -10,6 +10,7 @@ package com.hrznstudio.titanium.recipe.condition;
 import com.hrznstudio.titanium.Titanium;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 
 
 public record ContentExistsCondition<T>(HolderGetter<T> registry, ResourceKey<T> contentName) implements ICondition {
-    public static final Codec<ContentExistsCondition<?>> CODEC = RecordCodecBuilder.create(in -> in.group(
+    public static final MapCodec<ContentExistsCondition<?>> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
         ResourceLocation.CODEC.fieldOf("registry").forGetter(ce -> ce.contentName().registry()),
         ResourceLocation.CODEC.fieldOf("name").forGetter(ce -> ce.contentName().location()),
         ExtraCodecs.retrieveContext(ops -> ops instanceof RegistryOps<?> rops ? DataResult.success(rops) : DataResult.<RegistryOps<?>>error(() -> "Not a registry ops")).forGetter(ce -> null)
@@ -30,7 +31,7 @@ public record ContentExistsCondition<T>(HolderGetter<T> registry, ResourceKey<T>
         final ResourceKey regKey = ResourceKey.createRegistryKey(reg);
         return new ContentExistsCondition((HolderGetter) ops.getter(regKey).orElseThrow(), ResourceKey.create(regKey, name));
     }));
-    public static final ResourceLocation NAME = new ResourceLocation(Titanium.MODID, "content_exists");
+    public static final ResourceLocation NAME = ResourceLocation.fromNamespaceAndPath(Titanium.MODID, "content_exists");
 
     @Override
     public boolean test(IContext context) {
@@ -38,7 +39,7 @@ public record ContentExistsCondition<T>(HolderGetter<T> registry, ResourceKey<T>
     }
 
     @Override
-    public Codec<? extends ICondition> codec() {
+    public MapCodec<? extends ICondition> codec() {
         return CODEC;
     }
 }

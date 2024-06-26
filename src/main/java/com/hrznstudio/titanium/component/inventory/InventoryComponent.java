@@ -130,7 +130,7 @@ public class InventoryComponent<T extends IComponentHarness> extends ItemStackHa
         ItemStack existingStack = this.stacks.get(slot);
         int limit = getStackLimit(slot, stack);
         if (!existingStack.isEmpty()) {
-            if (!ItemHandlerHelper.canItemStacksStack(stack, existingStack)) {
+            if (!ItemStack.isSameItemSameComponents(stack, existingStack)) {
                 return stack;
             }
             limit -= existingStack.getCount();
@@ -141,13 +141,13 @@ public class InventoryComponent<T extends IComponentHarness> extends ItemStackHa
         boolean reachedLimit = stack.getCount() > limit;
         if (!simulate) {
             if (existingStack.isEmpty()) {
-                this.stacks.set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
+                this.stacks.set(slot, reachedLimit ? stack.copyWithCount(limit) : stack);
             } else {
                 existingStack.grow(reachedLimit ? limit : stack.getCount());
             }
             onContentsChanged(slot);
         }
-        return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
+        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
     }
 
     @Nonnull

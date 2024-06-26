@@ -20,6 +20,7 @@ import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.container.addon.IContainerAddonProvider;
 import com.hrznstudio.titanium.container.addon.IntArrayReferenceHolderAddon;
 import com.hrznstudio.titanium.container.referenceholder.FluidTankReferenceHolder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -123,7 +124,7 @@ public class FluidTankComponent<T extends IComponentHarness> extends FluidTank i
     }
 
     private FluidStack drainInternal(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty() || !resource.isFluidEqual(fluid)) {
+        if (resource.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, fluid)) {
             return FluidStack.EMPTY;
         }
         return drain(resource.getAmount(), action);
@@ -141,7 +142,7 @@ public class FluidTankComponent<T extends IComponentHarness> extends FluidTank i
         if (fluid.getAmount() < drained) {
             drained = fluid.getAmount();
         }
-        FluidStack stack = new FluidStack(fluid, drained);
+        FluidStack stack = fluid.copyWithAmount(drained);
         if (action.execute() && drained > 0) {
             fluid.shrink(drained);
             onContentsChanged();
@@ -155,7 +156,7 @@ public class FluidTankComponent<T extends IComponentHarness> extends FluidTank i
 
     @Nonnull
     public FluidStack drainForced(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty() || !resource.isFluidEqual(fluid)) {
+        if (resource.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, fluid)) {
             return FluidStack.EMPTY;
         }
         return drainForced(resource.getAmount(), action);
@@ -186,13 +187,13 @@ public class FluidTankComponent<T extends IComponentHarness> extends FluidTank i
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        return this.writeToNBT(new CompoundTag());
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        return this.writeToNBT(provider, new CompoundTag());
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        this.readFromNBT(nbt);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        this.readFromNBT(provider, nbt);
     }
 
     public enum Type {

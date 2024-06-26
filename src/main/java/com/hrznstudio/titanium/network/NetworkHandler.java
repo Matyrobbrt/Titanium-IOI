@@ -9,6 +9,7 @@ package com.hrznstudio.titanium.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,8 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -29,14 +30,14 @@ import java.util.function.Consumer;
 public class NetworkHandler {
     private final String namespace;
     private final Map<Class<? extends Message>, ResourceLocation> ids = new HashMap<>();
-    private final List<Consumer<IPayloadRegistrar>> registrar = new ArrayList<>();
+    private final List<Consumer<PayloadRegistrar>> registrar = new ArrayList<>();
     private int i;
 
     public NetworkHandler(String modid) {
         i = 0;
         namespace = modid;
         ModList.get().getModContainerById(modid).orElseThrow()
-            .getEventBus().addListener((final RegisterPayloadHandlerEvent event) -> {
+            .getEventBus().addListener((final RegisterPayloadHandlersEvent event) -> {
                 final var reg = event.registrar(modid)
                     .versioned(String.valueOf(i));
                 registrar.forEach(c -> c.accept(reg));
@@ -46,17 +47,19 @@ public class NetworkHandler {
     public record MessageWrapper(ResourceLocation id, Message message) implements CustomPacketPayload {
 
         @Override
-        public void write(FriendlyByteBuf pBuffer) {
-            message.toBytes(pBuffer);
+        public Type<? extends CustomPacketPayload> type() {
+            return new CustomPacketPayload.Type<>(id);
         }
     }
 
     public <REQ extends Message> void registerMessage(String name, Class<REQ> message) {
         i++;
-        final ResourceLocation id = new ResourceLocation(namespace, name);
+        final ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace, name);
         ids.put(message, id);
-        registrar.add(reg -> reg.play(
-            id, buffer -> {
+        registrar.add(reg -> reg.playBidirectional(
+            CustomPacketPayload.createType(namespace + ":" + name), StreamCodec.of((buffer, payload) -> {
+                payload.message.toBytes(buffer);
+            }, buffer -> {
                 try {
                     REQ req = message.getConstructor().newInstance();
                     req.fromBytes(buffer);
@@ -64,7 +67,7 @@ public class NetworkHandler {
                 } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            }, (payload, context) -> payload.message.handleMessage(context)
+            }), (payload, context) -> payload.message.handleMessage(context)
         ));
     }
 
@@ -77,7 +80,7 @@ public class NetworkHandler {
     }
 
     public void sendToServer(Message message) {
-        PacketDistributor.SERVER.noArg().send(wrap(message));
+        PacketDistributor.sendToServer(wrap(message));
     }
 
     public void sendTo(Message message, ServerPlayer player) {

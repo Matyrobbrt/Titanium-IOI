@@ -13,11 +13,13 @@ import com.hrznstudio.titanium.nbthandler.NBTManager;
 import com.hrznstudio.titanium.network.messages.TileFieldNetworkMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,8 +41,8 @@ public class BasicTile<T extends BasicTile<T>> extends BlockEntity implements IS
     }
 
     @ParametersAreNonnullByDefault
-    public InteractionResult onActivated(Player player, InteractionHand hand, Direction facing, double hitX, double hitY, double hitZ) {
-        return InteractionResult.PASS;
+    public ItemInteractionResult onActivated(Player player, InteractionHand hand, Direction facing, double hitX, double hitY, double hitZ) {
+        return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
     }
 
     public void onNeighborChanged(Block blockIn, BlockPos fromPos) {
@@ -62,14 +64,14 @@ public class BasicTile<T extends BasicTile<T>> extends BlockEntity implements IS
 
     // BlockEntity.Read
     @Override
-    public void load(CompoundTag compound) {
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
         NBTManager.getInstance().readTileEntity(this, compound);
-        super.load(compound);
+        super.loadAdditional(compound, provider);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compoundTag) {
-        super.saveAdditional(compoundTag);
+    protected void saveAdditional(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        super.saveAdditional(compoundTag, provider);
         NBTManager.getInstance().writeTileEntity(this, compoundTag);
     }
 
@@ -80,22 +82,24 @@ public class BasicTile<T extends BasicTile<T>> extends BlockEntity implements IS
 
     @Override
     @Nonnull
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
-        saveAdditional(compoundTag);
+        saveAdditional(compoundTag, provider);
         return compoundTag;
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        load(pkt.getTag());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        loadAdditional(pkt.getTag(), provider);
     }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return ClientboundBlockEntityDataPacket.create(this, blockEntity -> tag);
+        return ClientboundBlockEntityDataPacket.create(this, (be, reg) -> {
+            CompoundTag tag = new CompoundTag();
+            saveAdditional(tag, reg);
+            return tag;
+        });
     }
 
     public void updateNeigh() {

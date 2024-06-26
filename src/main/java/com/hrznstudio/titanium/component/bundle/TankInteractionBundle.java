@@ -19,6 +19,7 @@ import com.hrznstudio.titanium.component.inventory.InventoryComponent;
 import com.hrznstudio.titanium.component.progress.ProgressBarComponent;
 import com.hrznstudio.titanium.container.addon.IContainerAddon;
 import com.hrznstudio.titanium.util.TitaniumFluidUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +32,7 @@ import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +65,7 @@ public class TankInteractionBundle<T extends BasicTile & IComponentHarness> impl
         this.bar = new ProgressBarComponent<T>(posX + 5, posY + 30, maxProgress)
             .setBarDirection(ProgressBarComponent.BarDirection.ARROW_DOWN)
             .setCanReset(t -> true)
-            .setCanIncrease(t -> !this.input.getStackInSlot(0).isEmpty() && this.input.getStackInSlot(0).getCapability(Capabilities.FluidHandler.ITEM) != null && !getOutputStack(false).isEmpty() && (this.output.getStackInSlot(0).isEmpty() || ItemHandlerHelper.canItemStacksStack(getOutputStack(false), this.output.getStackInSlot(0))))
+            .setCanIncrease(t -> !this.input.getStackInSlot(0).isEmpty() && this.input.getStackInSlot(0).getCapability(Capabilities.FluidHandler.ITEM) != null && !getOutputStack(false).isEmpty() && (this.output.getStackInSlot(0).isEmpty() || ItemStack.isSameItemSameComponents(getOutputStack(false), this.output.getStackInSlot(0))))
             .setOnFinishWork(() -> {
                 ItemStack result = getOutputStack(false);
                 if (ItemHandlerHelper.insertItem(this.output, result, true).isEmpty()) {
@@ -108,18 +110,18 @@ public class TankInteractionBundle<T extends BasicTile & IComponentHarness> impl
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundNBT = new CompoundTag();
-        compoundNBT.put("Input", this.input.serializeNBT());
-        compoundNBT.put("Output", this.output.serializeNBT());
-        compoundNBT.put("Bar", this.bar.serializeNBT());
+        compoundNBT.put("Input", this.input.serializeNBT(provider));
+        compoundNBT.put("Output", this.output.serializeNBT(provider));
+        compoundNBT.put("Bar", this.bar.serializeNBT(provider));
         return compoundNBT;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        this.input.deserializeNBT(nbt.getCompound("Input"));
-        this.output.deserializeNBT(nbt.getCompound("Output"));
-        this.bar.deserializeNBT(nbt.getCompound("Bar"));
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        this.input.deserializeNBT(provider, nbt.getCompound("Input"));
+        this.output.deserializeNBT(provider, nbt.getCompound("Output"));
+        this.bar.deserializeNBT(provider, nbt.getCompound("Bar"));
     }
 }

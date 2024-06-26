@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.hrznstudio.titanium.annotation.Save;
 import com.hrznstudio.titanium.api.INBTHandler;
 import com.hrznstudio.titanium.nbthandler.data.*;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -101,7 +102,7 @@ public class NBTManager {
                 try {
                     Object obj = field.get(entity);
                     if (obj == null) continue;
-                    compound = handleNBTWrite(compound, save.value().isEmpty() ? field.getName() : save.value(), obj, field);
+                    compound = handleNBTWrite(entity.getLevel().registryAccess(), compound, save.value().isEmpty() ? field.getName() : save.value(), obj, field);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -122,7 +123,7 @@ public class NBTManager {
                 if (compound.contains(field.getName())){
                     Save save = field.getAnnotation(Save.class);
                     try {
-                        Object value = handleNBTRead(compound, save.value().isEmpty() ? field.getName() : save.value(), field.get(entity), field);
+                        Object value = handleNBTRead(entity.getLevel().registryAccess(), compound, save.value().isEmpty() ? field.getName() : save.value(), field.get(entity), field);
                         field.set(entity, value);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
@@ -147,7 +148,7 @@ public class NBTManager {
                         Save save = field.getAnnotation(Save.class);
                         Object obj = field.get(entity);
                         if (obj == null) continue;
-                        compound = handleNBTWrite(compound, save.value().isEmpty() ? field.getName() : save.value(), obj, field);
+                        compound = handleNBTWrite(entity.getLevel().registryAccess(), compound, save.value().isEmpty() ? field.getName() : save.value(), obj, field);
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -165,10 +166,10 @@ public class NBTManager {
      * @param value    The value to store in the NBTTagCompound.
      * @return the modified NBTTagCompound.
      */
-    private CompoundTag handleNBTWrite(CompoundTag compound, String name, Object value, Field field) {
+    private CompoundTag handleNBTWrite(HolderLookup.Provider provider, CompoundTag compound, String name, Object value, Field field) {
         for (INBTHandler handler : handlerList) {
             if (handler.isClassValid(value == null ? field.getType() : value.getClass())) {
-                if (handler.storeToNBT(compound, name, value)) return compound;
+                if (handler.storeToNBT(provider, compound, name, value)) return compound;
             }
         }
         return compound;
@@ -182,11 +183,11 @@ public class NBTManager {
      * @param value    The current value.
      * @return
      */
-    private Object handleNBTRead(CompoundTag compound, String name, @Nullable Object value, Field field) {
+    private Object handleNBTRead(HolderLookup.Provider provider, CompoundTag compound, String name, @Nullable Object value, Field field) {
         for (INBTHandler handler : handlerList) {
             if (handler.isClassValid(value == null ? field.getType() : value.getClass())) {
                 if (!compound.contains(name)) continue;
-                Object readValue = handler.readFromNBT(compound, name, value);
+                Object readValue = handler.readFromNBT(provider, compound, name, value);
                 if (readValue != null) {
                     return readValue;
                 }

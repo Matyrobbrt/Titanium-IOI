@@ -8,6 +8,8 @@
 package com.hrznstudio.titanium;
 
 import com.hrznstudio.titanium.block.BasicBlock;
+import com.hrznstudio.titanium.client.screen.container.BasicAddonScreen;
+import com.hrznstudio.titanium.container.BasicAddonContainer;
 import com.hrznstudio.titanium.util.RayTraceUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,17 +21,28 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import org.joml.Matrix4f;
 
+@Mod(value = Titanium.MODID, dist = Dist.CLIENT)
 public class TitaniumClient {
     public static void registerModelLoader() {
         //ModelLoaderRegistry.registerLoader(new ResourceLocation(Titanium.MODID, "model_loader"),new TitaniumModelLoader());
+    }
+
+    public TitaniumClient(IEventBus bus) {
+        bus.addListener((final RegisterMenuScreensEvent event) -> {
+            event.register((MenuType<? extends BasicAddonContainer>) BasicAddonContainer.TYPE.get(), BasicAddonScreen::new);
+        });
     }
 
     public static EntityRenderer<? super AbstractClientPlayer> getPlayerRenderer(Minecraft minecraft, AbstractClientPlayer player) {
@@ -42,7 +55,7 @@ public class TitaniumClient {
             BlockHitResult traceResult = event.getTarget();
             BlockState og = Minecraft.getInstance().level.getBlockState(traceResult.getBlockPos());
             if (og.getBlock() instanceof BasicBlock && ((BasicBlock) og.getBlock()).hasIndividualRenderVoxelShape()) {
-                VoxelShape shape = RayTraceUtils.rayTraceVoxelShape(traceResult, Minecraft.getInstance().level, Minecraft.getInstance().player, 32, event.getPartialTick());
+                VoxelShape shape = RayTraceUtils.rayTraceVoxelShape(traceResult, Minecraft.getInstance().level, Minecraft.getInstance().player, 32, event.getDeltaTracker().getGameTimeDeltaPartialTick(false));
                 BlockPos blockpos = event.getTarget().getBlockPos();
                 event.setCanceled(true);
                 if (shape != null && !shape.isEmpty()) {
@@ -74,8 +87,8 @@ public class TitaniumClient {
             f = f / f3;
             f1 = f1 / f3;
             f2 = f2 / f3;
-            bufferIn.vertex(matrix4f, (float) (p_230013_12_ + xIn), (float) (p_230013_14_ + yIn), (float) (p_230013_16_ + zIn)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2).endVertex();
-            bufferIn.vertex(matrix4f, (float) (p_230013_18_ + xIn), (float) (p_230013_20_ + yIn), (float) (p_230013_22_ + zIn)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2).endVertex();
+            bufferIn.addVertex(matrix4f, (float) (p_230013_12_ + xIn), (float) (p_230013_14_ + yIn), (float) (p_230013_16_ + zIn)).setColor(red, green, blue, alpha).setNormal(posestack$pose, f, f1, f2);
+            bufferIn.addVertex(matrix4f, (float) (p_230013_18_ + xIn), (float) (p_230013_20_ + yIn), (float) (p_230013_22_ + zIn)).setColor(red, green, blue, alpha).setNormal(posestack$pose, f, f1, f2);
         });
     }
 }

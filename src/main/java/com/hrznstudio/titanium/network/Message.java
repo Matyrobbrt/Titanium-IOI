@@ -8,16 +8,17 @@
 package com.hrznstudio.titanium.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
 public abstract class Message implements Serializable {
 
-    protected abstract void handleMessage(PlayPayloadContext context);
+    protected abstract void handleMessage(IPayloadContext context);
 
-    public final void fromBytes(FriendlyByteBuf buf) {
+    public final void fromBytes(RegistryFriendlyByteBuf buf) {
         try {
             Class<?> clazz = getClass();
             for (Field f : clazz.getDeclaredFields()) {
@@ -31,7 +32,7 @@ public abstract class Message implements Serializable {
         }
     }
 
-    public final void toBytes(FriendlyByteBuf buf) {
+    public final void toBytes(RegistryFriendlyByteBuf buf) {
         try {
             Class<?> clazz = getClass();
             for (Field f : clazz.getDeclaredFields()) {

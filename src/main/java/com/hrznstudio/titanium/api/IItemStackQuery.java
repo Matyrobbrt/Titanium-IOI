@@ -66,7 +66,8 @@ public interface IItemStackQuery extends Predicate<ItemStack> {
     interface IItemStackNBTQuery extends IItemStackQuery {
         @Override
         default boolean matches(ItemStack itemStack) {
-            return itemStack.hasTag() && matches(itemStack.getTag());
+            return false; // TODO items don't exactly do NBT anymore
+//            return itemStack.hasTag() && matches(itemStack.getTag());
         }
 
         boolean matches(CompoundTag compound);

@@ -23,13 +23,13 @@ public class BlockPosNBTHandler implements INBTHandler<BlockPos> {
     }
 
     @Override
-    public boolean storeToNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nonnull BlockPos object) {
+    public boolean storeToNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nonnull BlockPos object) {
         compound.putLong(name, object.asLong());
         return false;
     }
 
     @Override
-    public BlockPos readFromNBT(@Nonnull CompoundTag compound, @Nonnull String name, @Nullable BlockPos current) {
+    public BlockPos readFromNBT(net.minecraft.core.HolderLookup.Provider provider, @Nonnull CompoundTag compound, @Nonnull String name, @Nullable BlockPos current) {
         return compound.contains(name) ? BlockPos.of(compound.getLong(name)) : current;
     }
 }

@@ -23,12 +23,16 @@ import com.hrznstudio.titanium.container.referenceholder.ProgressBarReferenceHol
 import com.hrznstudio.titanium.util.AssetUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.DyeColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import java.awt.*;
+
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -357,7 +361,7 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compound = new CompoundTag();
         compound.putInt("Tick", progress);
         compound.putInt("MaxProgress", maxProgress);
@@ -365,7 +369,7 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         progress = nbt.getInt("Tick");
         maxProgress = nbt.getInt("MaxProgress");
     }
@@ -389,7 +393,8 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
                 Point offset = assetBorder.getOffset();
                 Rectangle area = assetBorder.getArea();
                 guiGraphics.blit(assetBorder.getResourceLocation(), guiX + addon.getPosX() + offset.x, guiY + addon.getPosY() + offset.y, area.x, area.y, area.width, area.height);
-                guiGraphics.setColor(addon.getProgressBar().getColor().getTextureDiffuseColors()[0], addon.getProgressBar().getColor().getTextureDiffuseColors()[1], addon.getProgressBar().getColor().getTextureDiffuseColors()[2], 1);
+                var colors = getTextureDiffuseColors(addon.getProgressBar().getColor());
+                guiGraphics.setColor(colors[0], colors[1], colors[2], 1);
                 IAsset assetBar = IAssetProvider.getAsset(provider, AssetTypes.PROGRESS_BAR_BACKGROUND_VERTICAL);
                 offset = assetBar.getOffset();
                 area = assetBar.getArea();
@@ -429,7 +434,8 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
                 int progress = addon.getProgressBar().getProgress();
                 int maxProgress = addon.getProgressBar().getMaxProgress();
                 int progressOffset = progress * area.width / Math.max(maxProgress, 1);
-                guiGraphics.setColor(addon.getProgressBar().getColor().getTextureDiffuseColors()[0], addon.getProgressBar().getColor().getTextureDiffuseColors()[1], addon.getProgressBar().getColor().getTextureDiffuseColors()[2], 1);
+                var colors = getTextureDiffuseColors(addon.getProgressBar().getColor());
+                guiGraphics.setColor(colors[0], colors[1], colors[2], 1);
                 guiGraphics.blit(asset.getResourceLocation(), addon.getPosX() + offset.x + guiX, addon.getPosY() + offset.y + guiY, area.x, area.y, progressOffset, area.height);
                 guiGraphics.setColor(1, 1, 1, 1);
             }
@@ -455,7 +461,8 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
                 int progress = addon.getProgressBar().getProgress();
                 int maxProgress = addon.getProgressBar().getMaxProgress();
                 int progressOffset = progress * area.height / Math.max(maxProgress, 1);
-                guiGraphics.setColor(addon.getProgressBar().getColor().getTextureDiffuseColors()[0], addon.getProgressBar().getColor().getTextureDiffuseColors()[1], addon.getProgressBar().getColor().getTextureDiffuseColors()[2], 1);
+                var colors = getTextureDiffuseColors(addon.getProgressBar().getColor());
+                guiGraphics.setColor(colors[0], colors[1], colors[2], 1);
                 guiGraphics.blit(asset.getResourceLocation(), addon.getPosX() + offset.x + guiX, addon.getPosY() + offset.y + guiY, area.x, area.y, area.width, progressOffset);
                 guiGraphics.setColor(1, 1, 1, 1);
             }
@@ -479,5 +486,12 @@ public class ProgressBarComponent<T extends IComponentHarness> implements INBTSe
 
         @OnlyIn(Dist.CLIENT)
         public abstract int getYSize(IAssetProvider provider);
+    }
+
+    public static float[] getTextureDiffuseColors(DyeColor color) {
+        int $$6 = (color.getTextureDiffuseColor() & 0xFF0000) >> 16;
+        int $$7 = (color.getTextureDiffuseColor() & 0xFF00) >> 8;
+        int $$8 = (color.getTextureDiffuseColor() & 0xFF);
+        return new float[]{(float)$$6 / 255.0F, (float)$$7 / 255.0F, (float)$$8 / 255.0F};
     }
 }

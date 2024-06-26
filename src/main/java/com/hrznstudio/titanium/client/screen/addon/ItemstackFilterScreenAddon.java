@@ -91,7 +91,7 @@ public class ItemstackFilterScreenAddon extends BasicScreenAddon {
                     CompoundTag compoundNBT = new CompoundTag();
                     compoundNBT.putString("Name", filter.getName());
                     compoundNBT.putInt("Slot", filterSlot.getFilterID());
-                    compoundNBT.put("Filter", Minecraft.getInstance().player.containerMenu.getCarried().save(new CompoundTag()));
+                    compoundNBT.put("Filter", Minecraft.getInstance().player.containerMenu.getCarried().save(screen.getMinecraft().level.registryAccess(), new CompoundTag()));
                     Titanium.NETWORK.sendToServer(new ButtonClickNetworkMessage(locatable.getLocatorInstance(), -2, compoundNBT));
                     return true;
                 }

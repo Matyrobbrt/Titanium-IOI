@@ -57,7 +57,7 @@ public class RewardCommand {
         }
         if (changed) {
             context.getSource().getServer().execute(() -> {
-                CompoundTag nbt = RewardWorldStorage.get(context.getSource().getServer().getLevel(Level.OVERWORLD)).serializeSimple();
+                CompoundTag nbt = RewardWorldStorage.get(context.getSource().getServer().getLevel(Level.OVERWORLD)).serializeSimple(context.getSource().getServer().registryAccess());
                 context.getSource().getServer().getPlayerList().getPlayers().forEach(serverPlayerEntity -> Titanium.NETWORK.sendTo(new RewardSyncMessage(nbt), serverPlayerEntity));
             });
         }

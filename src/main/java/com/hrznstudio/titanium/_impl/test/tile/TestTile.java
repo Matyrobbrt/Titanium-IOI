@@ -34,6 +34,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -137,11 +138,11 @@ public class TestTile extends PoweredTile<TestTile> implements IRedstoneReader {
 
     @Override
     @ParametersAreNonnullByDefault
-    public InteractionResult onActivated(Player player, InteractionHand hand, Direction facing, double hitX, double hitY, double hitZ) {
-        InteractionResult result = super.onActivated(player, hand, facing, hitX, hitY, hitZ);
-        if (result == InteractionResult.PASS) {
+    public ItemInteractionResult onActivated(Player player, InteractionHand hand, Direction facing, double hitX, double hitY, double hitZ) {
+        ItemInteractionResult result = super.onActivated(player, hand, facing, hitX, hitY, hitZ);
+        if (result == ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION) {
             openGui(player);
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
         return result;
     }

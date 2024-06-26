@@ -7,6 +7,7 @@
 
 package com.hrznstudio.titanium.reward.storage;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import java.util.HashMap;
@@ -23,16 +24,16 @@ public class ClientRewardStorage implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         return null;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         rewards.clear();
         nbt.getAllKeys().forEach(s -> {
             EnabledRewards rewards = new EnabledRewards();
-            rewards.deserializeNBT(nbt.getCompound(s));
+            rewards.deserializeNBT(provider, nbt.getCompound(s));
             this.rewards.put(UUID.fromString(s), rewards);
         });
     }

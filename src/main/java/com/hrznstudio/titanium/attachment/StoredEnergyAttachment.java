@@ -5,6 +5,7 @@ import com.hrznstudio.titanium.item.EnergyItem;
 import com.hrznstudio.titanium.module.DeferredRegistryHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.util.ExtraCodecs;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,5 +22,5 @@ public record StoredEnergyAttachment(int stored, int capacity, int in, int out) 
         ExtraCodecs.POSITIVE_INT.fieldOf("in").forGetter(StoredEnergyAttachment::in),
         ExtraCodecs.POSITIVE_INT.fieldOf("out").forGetter(StoredEnergyAttachment::out)
     ).apply(in, StoredEnergyAttachment::new));
-    public static DeferredHolder<AttachmentType<?>, AttachmentType<StoredEnergyAttachment>> TYPE;
+    public static DeferredHolder<DataComponentType<?>, DataComponentType<StoredEnergyAttachment>> TYPE;
 }

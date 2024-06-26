@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class TestAssetProvider implements IAssetProvider {
     private static Map<IAssetType, IAsset> assetMap;
-    private static ResourceLocation TEST_LOCATION = new ResourceLocation(Titanium.MODID, "textures/gui/carpenter_dev.png");
+    private static ResourceLocation TEST_LOCATION = ResourceLocation.fromNamespaceAndPath(Titanium.MODID, "textures/gui/carpenter_dev.png");
 
     private static final IBackgroundAsset BACKGROUND_ASSET = new IBackgroundAsset() {
         @Override

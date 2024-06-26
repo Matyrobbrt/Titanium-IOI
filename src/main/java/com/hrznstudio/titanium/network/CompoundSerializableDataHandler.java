@@ -10,14 +10,21 @@ package com.hrznstudio.titanium.network;
 import com.google.gson.JsonObject;
 import com.hrznstudio.titanium.network.locator.LocatorFactory;
 import com.hrznstudio.titanium.network.locator.LocatorInstance;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
@@ -52,22 +59,22 @@ public class CompoundSerializableDataHandler {
         map(Boolean.class, FriendlyByteBuf::readBoolean, FriendlyByteBuf::writeBoolean);
         map(Character.class, FriendlyByteBuf::readChar, (Writer<Character>) FriendlyByteBuf::writeChar);
 
-        map(byte[].class, FriendlyByteBuf::readByteArray, FriendlyByteBuf::writeByteArray);
+        map(byte[].class, (RegistryFriendlyByteBuf buf) -> buf.readByteArray(), RegistryFriendlyByteBuf::writeBytes);
         map(int[].class, FriendlyByteBuf::readVarIntArray, FriendlyByteBuf::writeVarIntArray);
         map(long[].class, CompoundSerializableDataHandler::readLongArray, FriendlyByteBuf::writeLongArray);
 
         map(String.class, CompoundSerializableDataHandler::readString, FriendlyByteBuf::writeUtf);
-        map(CompoundTag.class, FriendlyByteBuf::readNbt, FriendlyByteBuf::writeNbt);
-        map(ItemStack.class, FriendlyByteBuf::readItem, FriendlyByteBuf::writeItem);
+        map(CompoundTag.class, ByteBufCodecs.TRUSTED_COMPOUND_TAG);
+        map(ItemStack.class, ItemStack.STREAM_CODEC);
         map(FluidStack.class, CompoundSerializableDataHandler::readFluidStack, CompoundSerializableDataHandler::writeFluidStack);
-        map(BlockPos.class, FriendlyByteBuf::readBlockPos, FriendlyByteBuf::writeBlockPos);
-        map(Component.class, FriendlyByteBuf::readComponent, FriendlyByteBuf::writeComponent);
+        map(BlockPos.class, BlockPos.STREAM_CODEC);
+        map(Component.class, ComponentSerialization.STREAM_CODEC);
         map(Date.class, FriendlyByteBuf::readDate, FriendlyByteBuf::writeDate);
-        map(UUID.class, FriendlyByteBuf::readUUID, FriendlyByteBuf::writeUUID);
+        map(UUID.class, UUIDUtil.STREAM_CODEC);
         map(ClientboundBlockEntityDataPacket.class, CompoundSerializableDataHandler::readUpdatePacket, CompoundSerializableDataHandler::writeUpdatePacket);
         map(LocatorInstance.class, LocatorFactory::readPacketBuffer, LocatorFactory::writePacketBuffer);
         map(Ingredient.Value.class, CollectionItemList::new, CollectionItemList::serializeBuffer);
-        map(Ingredient.class, Ingredient::fromNetwork, (buf, ingredient) -> ingredient.toNetwork(buf));
+        map(Ingredient.class, Ingredient.CONTENTS_STREAM_CODEC);
         map(Block.class, buf -> BuiltInRegistries.BLOCK.get(buf.readResourceLocation()), (buf, block) -> buf.writeResourceLocation(BuiltInRegistries.BLOCK.getKey(block)));
         map(Ingredient.Value[].class, CompoundSerializableDataHandler::readIItemListArray, CompoundSerializableDataHandler::writeIItemListArray);
         map(Ingredient[].class, CompoundSerializableDataHandler::readIngredientArray, CompoundSerializableDataHandler::writeIngredientArray);
@@ -75,6 +82,11 @@ public class CompoundSerializableDataHandler {
         map(ResourceKey[].class, CompoundSerializableDataHandler::readRegistryArray, CompoundSerializableDataHandler::writeRegistryArray);
         map(ResourceLocation.class, FriendlyByteBuf::readResourceLocation, FriendlyByteBuf::writeResourceLocation);
 
+    }
+
+    public static <T> void map(Class<T> type, StreamCodec<? extends ByteBuf, T> codec) {
+        var raw = (StreamCodec) codec;
+        FIELD_SERIALIZER.put(type, Pair.of(buf -> raw.decode(buf), (buf, object) -> raw.encode(buf, object)));
     }
 
     public static <T> void map(Class<T> type, Reader<T> reader, Writer<T> writer) {
@@ -89,12 +101,12 @@ public class CompoundSerializableDataHandler {
         return buf.readUtf(32767);
     }
 
-    private static FluidStack readFluidStack(FriendlyByteBuf buf) throws IOException {
-        return FluidStack.loadFluidStackFromNBT(buf.readNbt());
+    private static FluidStack readFluidStack(RegistryFriendlyByteBuf buf) throws IOException {
+        return FluidStack.STREAM_CODEC.decode(buf);
     }
 
-    private static void writeFluidStack(FriendlyByteBuf buf, FluidStack stack) {
-        buf.writeNbt(stack == null ? FluidStack.EMPTY.writeToNBT(new CompoundTag()) : stack.writeToNBT(new CompoundTag()));
+    private static void writeFluidStack(RegistryFriendlyByteBuf buf, FluidStack stack) {
+        FluidStack.STREAM_CODEC.encode(buf, stack);
     }
 
     public static ResourceKey<?> readRegistryKey(FriendlyByteBuf buffer) {
@@ -106,11 +118,11 @@ public class CompoundSerializableDataHandler {
         buffer.writeResourceLocation(biome.location());
     }
 
-    private static void writeUpdatePacket(FriendlyByteBuf buf, ClientboundBlockEntityDataPacket packet) {
-        packet.write(buf);
+    private static void writeUpdatePacket(RegistryFriendlyByteBuf buf, ClientboundBlockEntityDataPacket packet) {
+        ClientboundBlockEntityDataPacket.STREAM_CODEC.encode(buf, packet);
     }
 
-    private static Ingredient.Value[] readIItemListArray(FriendlyByteBuf buf) {
+    private static Ingredient.Value[] readIItemListArray(RegistryFriendlyByteBuf buf) {
         Ingredient.Value[] list = new Ingredient.Value[buf.readInt()];
         for (int i = 0; i < list.length; i++) {
             list[i] = new CollectionItemList(buf);
@@ -118,7 +130,7 @@ public class CompoundSerializableDataHandler {
         return list;
     }
 
-    private static void writeIItemListArray(FriendlyByteBuf buf, Ingredient.Value[] list) {
+    private static void writeIItemListArray(RegistryFriendlyByteBuf buf, Ingredient.Value[] list) {
         buf.writeInt(list.length);
         for (Ingredient.Value iItemList : list) {
             CollectionItemList.serializeBuffer(buf, iItemList);
@@ -140,23 +152,23 @@ public class CompoundSerializableDataHandler {
         }
     }
 
-    public static Ingredient[] readIngredientArray(FriendlyByteBuf buffer) {
+    public static Ingredient[] readIngredientArray(RegistryFriendlyByteBuf buffer) {
         Ingredient[] ingredients = new Ingredient[buffer.readInt()];
         for (int i = 0; i < ingredients.length; i++) {
-            ingredients[i] = Ingredient.fromNetwork(buffer);
+            ingredients[i] = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
         }
         return ingredients;
     }
 
-    public static void writeIngredientArray(FriendlyByteBuf buffer, Ingredient[] ingredients) {
+    public static void writeIngredientArray(RegistryFriendlyByteBuf buffer, Ingredient[] ingredients) {
         buffer.writeInt(ingredients.length);
         for (Ingredient ingredient : ingredients) {
-            ingredient.toNetwork(buffer);
+            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, ingredient);
         }
     }
 
-    private static ClientboundBlockEntityDataPacket readUpdatePacket(FriendlyByteBuf buf) {
-        return new ClientboundBlockEntityDataPacket(buf);
+    private static ClientboundBlockEntityDataPacket readUpdatePacket(RegistryFriendlyByteBuf buf) {
+        return ClientboundBlockEntityDataPacket.STREAM_CODEC.decode(buf);
     }
 
     public static Pair<Reader, Writer> getHandler(Class<?> clazz) {
@@ -166,12 +178,12 @@ public class CompoundSerializableDataHandler {
         return pair;
     }
 
-    public static void writeField(Field f, Class clazz, FriendlyByteBuf buf, Object instance) throws IllegalArgumentException, IllegalAccessException {
+    public static void writeField(Field f, Class clazz, RegistryFriendlyByteBuf buf, Object instance) throws IllegalArgumentException, IllegalAccessException {
         Pair<Reader, Writer> handler = getHandler(clazz);
         handler.getRight().write(buf, f.get(instance));
     }
 
-    public static void readField(Field f, Class clazz, FriendlyByteBuf buf, Object instance) throws IllegalArgumentException, IllegalAccessException, IOException {
+    public static void readField(Field f, Class clazz, RegistryFriendlyByteBuf buf, Object instance) throws IllegalArgumentException, IllegalAccessException, IOException {
         Pair<Reader, Writer> handler = getHandler(clazz);
         f.set(instance, handler.getLeft().read(buf));
     }
@@ -182,28 +194,28 @@ public class CompoundSerializableDataHandler {
     }
 
     public interface Writer<T> {
-        void write(FriendlyByteBuf buf, T t);
+        void write(RegistryFriendlyByteBuf buf, T t);
     }
 
     public interface Reader<T> {
-        T read(FriendlyByteBuf buf) throws IOException;
+        T read(RegistryFriendlyByteBuf buf) throws IOException;
     }
 
     public static class CollectionItemList implements Ingredient.Value {
 
         private List<ItemStack> stackList;
 
-        public CollectionItemList(FriendlyByteBuf buffer) {
+        public CollectionItemList(RegistryFriendlyByteBuf buffer) {
             this.stackList = new ArrayList<>();
             int amount = buffer.readInt();
             for (int i = 0; i < amount; i++) {
-                stackList.add(buffer.readItem());
+                stackList.add(ItemStack.STREAM_CODEC.decode(buffer));
             }
         }
 
-        public static void serializeBuffer(FriendlyByteBuf buffer, Ingredient.Value list) {
+        public static void serializeBuffer(RegistryFriendlyByteBuf buffer, Ingredient.Value list) {
             buffer.writeInt(list.getItems().size());
-            list.getItems().forEach(buffer::writeItem);
+            list.getItems().forEach(stack -> ItemStack.STREAM_CODEC.encode(buffer, stack));
         }
 
         @Override

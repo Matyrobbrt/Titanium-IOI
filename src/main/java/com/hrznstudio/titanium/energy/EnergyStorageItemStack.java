@@ -8,6 +8,7 @@
 package com.hrznstudio.titanium.energy;
 
 import com.hrznstudio.titanium.attachment.StoredEnergyAttachment;
+import com.hrznstudio.titanium.item.EnergyItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -79,10 +80,10 @@ public class EnergyStorageItemStack implements IEnergyStorage {
     }
 
     public void save(StoredEnergyAttachment attachment) {
-        stack.setData(StoredEnergyAttachment.TYPE, attachment);
+        stack.set(StoredEnergyAttachment.TYPE, attachment);
     }
 
     public StoredEnergyAttachment get() {
-        return stack.getData(StoredEnergyAttachment.TYPE);
+        return stack.getOrDefault(StoredEnergyAttachment.TYPE, new StoredEnergyAttachment((EnergyItem) stack.getItem()));
     }
 }

@@ -8,21 +8,28 @@
 package com.hrznstudio.titanium.datagenerator.loot;
 
 import com.hrznstudio.titanium.datagenerator.loot.block.BasicBlockLootTables;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.neoforged.neoforge.common.util.NonNullLazy;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class TitaniumLootTableProvider extends LootTableProvider {
-    private final NonNullLazy<List<Block>> blocksToProcess;
+    private final Supplier<List<Block>> blocksToProcess;
 
-    public TitaniumLootTableProvider(DataGenerator dataGenerator, NonNullLazy<List<Block>> blocks) {
-        super(dataGenerator.getPackOutput(), new HashSet<>(), new ArrayList<>());
+    public TitaniumLootTableProvider(DataGenerator dataGenerator, Supplier<List<Block>> blocks, CompletableFuture<HolderLookup.Provider> providerCompletableFuture) {
+        super(dataGenerator.getPackOutput(), new HashSet<>(), new ArrayList<>(), providerCompletableFuture);
         this.blocksToProcess = blocks;
     }
 
@@ -33,14 +40,11 @@ public class TitaniumLootTableProvider extends LootTableProvider {
         );
     }
 
-    protected BasicBlockLootTables createBlockLootTables() {
-        return new BasicBlockLootTables(blocksToProcess);
+    protected BasicBlockLootTables createBlockLootTables(HolderLookup.Provider prov) {
+        return new BasicBlockLootTables(blocksToProcess, prov);
     }
 
     @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker) {
-        //super.validate(map, validationtracker);
+    protected void validate(WritableRegistry<LootTable> writableregistry, ValidationContext validationcontext, ProblemReporter.Collector problemreporter$collector) {
     }
-
-
 }

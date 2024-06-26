@@ -36,7 +36,7 @@ public class JsonLoader<T> extends SimpleJsonResourceReloadListener {
     }
 
     private ResourceLocation transformRL(ResourceLocation resource) {
-        return new ResourceLocation(resource.getNamespace(), resource.getPath().replace(type + "/", ""));
+        return ResourceLocation.fromNamespaceAndPath(resource.getNamespace(), resource.getPath().replace(type + "/", ""));
     }
 
     @Override

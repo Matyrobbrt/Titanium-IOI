@@ -7,14 +7,14 @@
 
 package com.hrznstudio.titanium._impl.test.recipe;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestSerializableRecipe implements Recipe<Container> {
+public class TestSerializableRecipe implements Recipe<CraftingInput> {
 
     public static Holder<RecipeSerializer<?>> SERIALIZER;
     public static Holder<RecipeType<?>> RECIPE_TYPE;
@@ -40,9 +40,9 @@ public class TestSerializableRecipe implements Recipe<Container> {
         new TestSerializableRecipe(Ingredient.of(new ItemStack(Blocks.STONE)), pick, Blocks.DIRT);
     }
 
-    public static final Codec<TestSerializableRecipe> CODEC = RecordCodecBuilder.create(in -> in.group(
+    public static final MapCodec<TestSerializableRecipe> CODEC = RecordCodecBuilder.mapCodec(in -> in.group(
         Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(i -> i.input),
-        ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("output").forGetter(i -> i.output),
+        ItemStack.CODEC.fieldOf("output").forGetter(i -> i.output),
         BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(i -> i.block)
     ).apply(in, TestSerializableRecipe::new));
 
@@ -61,12 +61,12 @@ public class TestSerializableRecipe implements Recipe<Container> {
     }
 
     @Override
-    public boolean matches(Container inv, Level worldIn) {
+    public boolean matches(CraftingInput inv, Level worldIn) {
         return this.input.test(inv.getItem(0));
     }
 
     @Override
-    public ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
+    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
         return this.output.copy();
     }
 
@@ -76,8 +76,8 @@ public class TestSerializableRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess p_267052_) {
-        return this.output;
+    public ItemStack getResultItem(HolderLookup.Provider registries) {
+        return output;
     }
 
     @Override
