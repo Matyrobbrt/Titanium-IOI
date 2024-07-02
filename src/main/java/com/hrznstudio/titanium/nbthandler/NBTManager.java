@@ -117,13 +117,14 @@ public class NBTManager {
      * @param entity   The tile entity instance.
      * @param compound The NBTTagCompound to save the values.
      */
-    public void readTileEntity(BlockEntity entity, CompoundTag compound) {
+    public void readTileEntity(BlockEntity entity, HolderLookup.Provider provider, CompoundTag compound) {
         if (tileFieldList.containsKey(entity.getClass())) {
             for (Field field : tileFieldList.get(entity.getClass())) {
-                if (compound.contains(field.getName())){
-                    Save save = field.getAnnotation(Save.class);
+                Save save = field.getAnnotation(Save.class);
+                var name = save.value().isEmpty() ? field.getName() : save.value();
+                if (compound.contains(name)){
                     try {
-                        Object value = handleNBTRead(entity.getLevel().registryAccess(), compound, save.value().isEmpty() ? field.getName() : save.value(), field.get(entity), field);
+                        Object value = handleNBTRead(provider, compound, name, field.get(entity), field);
                         field.set(entity, value);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();

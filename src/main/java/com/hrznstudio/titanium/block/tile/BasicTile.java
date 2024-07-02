@@ -65,7 +65,7 @@ public class BasicTile<T extends BasicTile<T>> extends BlockEntity implements IS
     // BlockEntity.Read
     @Override
     public void loadAdditional(CompoundTag compound, HolderLookup.Provider provider) {
-        NBTManager.getInstance().readTileEntity(this, compound);
+        NBTManager.getInstance().readTileEntity(this, provider, compound);
         super.loadAdditional(compound, provider);
     }
 
@@ -115,7 +115,7 @@ public class BasicTile<T extends BasicTile<T>> extends BlockEntity implements IS
     }
 
     public void handleSyncObject(CompoundTag nbt){
-        NBTManager.getInstance().readTileEntity(this, nbt);
+        NBTManager.getInstance().readTileEntity(this, level.registryAccess(), nbt);
     }
 
     public boolean isClient() {

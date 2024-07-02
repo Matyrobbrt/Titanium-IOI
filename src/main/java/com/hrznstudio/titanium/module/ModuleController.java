@@ -44,10 +44,9 @@ public abstract class ModuleController {
     private final DeferredRegistryHelper deferredRegistryHelper;
     private final List<TitaniumTab> titaniumTabs;
 
-    public ModuleController() {
-        // TODO - ModLoadingContext is bad:tm:
-        this.modid = ModLoadingContext.get().getActiveContainer().getModId();
-        this.container = ModLoadingContext.get().getActiveContainer();
+    public ModuleController(ModContainer container) {
+        this.modid = container.getModId();
+        this.container = container;
         this.modPluginManager = new PluginManager(modid, FeaturePlugin.FeaturePluginType.MOD, featurePlugin -> ModList.get().isLoaded(featurePlugin.value()), true);
         this.modPluginManager.execute(PluginPhase.CONSTRUCTION);
         this.deferredRegistryHelper = new DeferredRegistryHelper(this.modid);

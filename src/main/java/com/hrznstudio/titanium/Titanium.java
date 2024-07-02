@@ -45,6 +45,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -71,7 +72,8 @@ public class Titanium extends ModuleController {
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static NetworkHandler NETWORK = new NetworkHandler(MODID);
 
-    public Titanium() {
+    public Titanium(ModContainer container) {
+        super(container);
         NETWORK.registerMessage("button_click", ButtonClickNetworkMessage.class);
         NETWORK.registerMessage("reward_sync", RewardSyncMessage.class);
         NETWORK.registerMessage("tile_field", TileFieldNetworkMessage.class);

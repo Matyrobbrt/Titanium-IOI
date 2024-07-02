@@ -57,7 +57,7 @@ public class NetworkHandler {
         final ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace, name);
         ids.put(message, id);
         registrar.add(reg -> reg.playBidirectional(
-            CustomPacketPayload.createType(namespace + ":" + name), StreamCodec.of((buffer, payload) -> {
+            new CustomPacketPayload.Type<>(id), StreamCodec.of((buffer, payload) -> {
                 payload.message.toBytes(buffer);
             }, buffer -> {
                 try {
