@@ -361,6 +361,9 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
         return this.level.getBlockEntity(this.worldPosition) == this;
     }
 
+    public MultiTankComponent<T> getMultiTankComponent() {
+        return multiTankComponent;
+    }
 
     public IFluidHandler getFluidHandler(@Nullable Direction direction) {
         return multiTankComponent == null ? null : multiTankComponent.getCapabilityForSide(FacingUtil.getFacingRelative(getFacingDirection(), direction)).orElse(null);
@@ -368,5 +371,9 @@ public abstract class ActiveTile<T extends ActiveTile<T>> extends BasicTile<T> i
 
     public IItemHandler getItemHandler(@Nullable Direction direction) {
         return multiInventoryComponent == null ? null : multiInventoryComponent.getCapabilityForSide(FacingUtil.getFacingRelative(getFacingDirection(), direction)).orElse(null);
+    }
+
+    public MultiFilterComponent getMultiFilterComponent() {
+        return multiFilterComponent;
     }
 }

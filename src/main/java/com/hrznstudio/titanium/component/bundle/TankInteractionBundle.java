@@ -65,7 +65,7 @@ public class TankInteractionBundle<T extends BasicTile & IComponentHarness> impl
         this.bar = new ProgressBarComponent<T>(posX + 5, posY + 30, maxProgress)
             .setBarDirection(ProgressBarComponent.BarDirection.ARROW_DOWN)
             .setCanReset(t -> true)
-            .setCanIncrease(t -> !this.input.getStackInSlot(0).isEmpty() && this.input.getStackInSlot(0).getCapability(Capabilities.FluidHandler.ITEM) != null && !getOutputStack(false).isEmpty() && (this.output.getStackInSlot(0).isEmpty() || ItemStack.isSameItemSameComponents(getOutputStack(false), this.output.getStackInSlot(0))))
+            .setCanIncrease(t -> !this.input.getStackInSlot(0).isEmpty() && this.input.getStackInSlot(0).getCapability(Capabilities.FluidHandler.ITEM) != null && !getOutputStack(false).isEmpty() && (this.output.getStackInSlot(0).isEmpty() || ItemStack.isSameItemSameComponents(getOutputStack(false), this.input.getStackInSlot(0))))
             .setOnFinishWork(() -> {
                 ItemStack result = getOutputStack(false);
                 if (ItemHandlerHelper.insertItem(this.output, result, true).isEmpty()) {
