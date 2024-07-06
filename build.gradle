@@ -89,8 +89,7 @@ publishing {
   }
   repositories {
     maven {
-      name 'repo'
-      url(file('repo'))
+      url "file://" + System.getenv("local_maven")
     }
   }
 }
