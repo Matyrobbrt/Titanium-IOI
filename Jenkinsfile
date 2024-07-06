@@ -1,10 +1,10 @@
 #!/usr/bin/env groovy
-def releaseBranch = "1.20";
+def releaseBranch = "1.21";
 
 pipeline {
   agent any
   tools {
-      jdk "jdk-17.0.1"
+      jdk "jdk-21"
   }
   environment {
     CURSE_API = credentials('curseforge_api_key')
@@ -34,7 +34,7 @@ pipeline {
         sh './gradlew publish'
 
         echo 'Deploying to CurseForge'
-        sh './gradlew curseforge modrinth'
+        sh './gradlew publishCurseForge modrinth'
       }
     }
   }

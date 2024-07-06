@@ -1,6 +1,9 @@
 plugins {
     id 'net.neoforged.moddev' version '0.1.112'
     id 'maven-publish'
+  id "com.modrinth.minotaur" version "2.+"
+  id 'net.darkhax.curseforgegradle' version '1.1.15'
+  id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 final mcVersion = project.neo_version.split('\\.', 3).with {
@@ -90,4 +93,64 @@ publishing {
       url(file('repo'))
     }
   }
+}
+
+
+license {
+  header = project.file('HEADER')
+  ext {
+    year = Calendar.getInstance().get(Calendar.YEAR)
+    name = 'Horizon Studio'
+    email = 'contact@hrznstudio.com'
+    mod = 'Titanium'
+  }
+}
+
+tasks.publishCurseForge.enabled = System.env["CURSE_API"] != null
+
+curseforge {
+  if (System.env["CURSE_API"] != null) {
+    apiKey = System.env["CURSE_API"]
+  }
+  project {
+    id = '287342'
+    changelog = "https://github.com/InnovativeOnlineIndustries/Titanium/blob/changelog/CHANGELOG.md"
+    changelogType = 'markdown'
+    releaseType = 'beta'
+    addGameVersion '1.21'
+
+    mainArtifact(jar) {
+
+    }
+  }
+}
+
+task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+
+  apiToken = System.env["CURSE_API"]
+
+  // The main file to upload
+  def mainFile = upload(537663, jar)
+
+  mainFile.releaseType = 'beta'
+  mainFile.changelog = 'https://github.com/InnovativeOnlineIndustries/Titanium/blob/changelog/CHANGELOG.md'
+  mainFile.changelogType = 'markdown'
+  mainFile.addModLoader("NeoForge")
+  mainFile.addGameVersion(mcVersion)
+}
+
+tasks.modrinth.enabled = System.env["MODRINTH_TOKEN"] != null
+
+modrinth {
+  token = System.getenv("MODRINTH_TOKEN")
+  // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+  projectId = "1Ro7m06l" // This can be the project ID or the slug. Either will work!
+  versionType = "beta" // This is the default -- can also be `beta` or `alpha`
+  uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+  gameVersions = ["1.21"] // Must be an array, even with only one version
+  loaders = ["neoforge"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
+  dependencies { // A special DSL for creating dependencies
+
+  }
+  changelog = "https://github.com/InnovativeOnlineIndustries/Titanium/blob/changelog/CHANGELOG.md"
 }
